@@ -153,14 +153,13 @@ macro_rules! syscall {
             if let Some(fun) = $name.get() {
                 fun($($arg_name),*)
             } else {
-                libc_errno::set_errno(libc_errno::Errno(libc::ENOSYS));
+                crate::backend::io::errno::set_errno(crate::io::Errno::NOSYS);
                 -1
             }
         }
     )
 }
 
-#[cfg(linux_kernel)]
 macro_rules! syscall {
     ($vis:vis fn $name:ident($($arg_name:ident: $t:ty),*) via $sys_name:ident -> $ret:ty) => (
         $vis unsafe fn $name($($arg_name:$t),*) -> $ret {
@@ -261,7 +260,7 @@ macro_rules! weakcall {
             if let Some(fun) = $name.get() {
                 fun($($arg_name),*)
             } else {
-                libc_errno::set_errno(libc_errno::Errno(libc::ENOSYS));
+                crate::backend::io::errno::set_errno(crate::io::Errno::NOSYS);
                 -1
             }
         }

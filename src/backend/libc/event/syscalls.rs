@@ -480,7 +480,7 @@ pub(crate) fn port_send(
 #[cfg(not(any(target_os = "redox", target_os = "wasi")))]
 pub(crate) fn pause() {
     let r = unsafe { c::pause() };
-    let errno = libc_errno::errno().0;
+    let errno = crate::backend::io::errno::errno().0;
     debug_assert_eq!(r, -1);
     debug_assert_eq!(errno, c::EINTR);
 }

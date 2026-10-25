@@ -4,7 +4,8 @@
 //! `errno` value.
 
 use crate::backend::c;
-use libc_errno::errno;
+#[cfg(not(target_os = "minix"))]
+pub(crate) use libc_errno::errno;
 
 /// `errno`—An error code.
 ///
@@ -1111,4 +1112,30 @@ impl Errno {
     pub(crate) fn last_os_error() -> Self {
         Self(errno().0)
     }
+}
+
+/// Overwrites this thread's `errno` value.
+#[cfg(not(target_os = "minix"))]
+pub(crate) fn set_errno(err: Errno) {
+    libc_errno::set_errno(libc_errno::Errno(err.0));
+}
+
+/// Reads this thread's `errno` value.
+#[cfg(target_os = "minix")]
+pub(crate) fn errno() -> Errno {
+    // SAFETY: `__errno_location` returns this thread's TLS `errno` slot, which
+    // stays valid for the thread's lifetime. `minix-libc` defines it.
+    Errno(unsafe { *__errno_location() })
+}
+
+/// Overwrites this thread's `errno` value.
+#[cfg(target_os = "minix")]
+pub(crate) fn set_errno(err: Errno) {
+    // SAFETY: as in [`errno`].
+    unsafe { *__errno_location() = err.0 }
+}
+
+#[cfg(target_os = "minix")]
+extern "C" {
+    fn __errno_location() -> *mut c::c_int;
 }

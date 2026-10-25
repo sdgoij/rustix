@@ -8,6 +8,7 @@
 use super::types::FileType;
 use crate::backend::c;
 use crate::backend::conv::owned_fd;
+use crate::backend::io::errno::{errno, set_errno, Errno};
 use crate::fd::{AsFd, BorrowedFd, OwnedFd};
 use crate::ffi::{CStr, CString};
 use crate::fs::{fcntl_getfl, openat, Mode, OFlags};
@@ -39,7 +40,6 @@ use c::readdir as libc_readdir;
 use c::readdir64 as libc_readdir;
 use core::fmt;
 use core::ptr::NonNull;
-use libc_errno::{errno, set_errno, Errno};
 
 /// `DIR*`
 pub struct Dir {
