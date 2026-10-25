@@ -1,9 +1,15 @@
-#[cfg(any(linux_kernel, target_os = "freebsd", target_os = "illumos"))]
+#[cfg(any(
+    linux_kernel,
+    target_os = "freebsd",
+    target_os = "illumos",
+    target_os = "minix"
+))]
 use crate::backend::c;
 #[cfg(any(
     linux_kernel,
     target_os = "freebsd",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "espidf"
 ))]
 use bitflags::bitflags;
@@ -12,6 +18,7 @@ use bitflags::bitflags;
     linux_kernel,
     target_os = "freebsd",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "espidf"
 ))]
 bitflags! {

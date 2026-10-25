@@ -19,6 +19,7 @@ use crate::event::port::Event;
     linux_kernel,
     target_os = "freebsd",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "espidf"
 ))]
 use crate::event::EventfdFlags;
@@ -72,6 +73,7 @@ use {crate::backend::conv::ret_owned_fd, crate::fd::OwnedFd};
     linux_kernel,
     target_os = "freebsd",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "espidf"
 ))]
 pub(crate) fn eventfd(initval: u32, flags: EventfdFlags) -> io::Result<OwnedFd> {
@@ -98,7 +100,7 @@ pub(crate) fn eventfd(initval: u32, flags: EventfdFlags) -> io::Result<OwnedFd> 
         ret_owned_fd(eventfd(initval, bitflags_bits!(flags)))
     }
 
-    #[cfg(any(target_os = "illumos", target_os = "espidf"))]
+    #[cfg(any(target_os = "illumos", target_os = "minix", target_os = "espidf"))]
     unsafe {
         ret_owned_fd(c::eventfd(initval, bitflags_bits!(flags)))
     }

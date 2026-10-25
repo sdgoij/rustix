@@ -3,6 +3,7 @@
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 use crate::backend::c;
@@ -11,6 +12,7 @@ use crate::backend::c;
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 use crate::time::Itimerspec;
@@ -19,6 +21,7 @@ use crate::time::Itimerspec;
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 #[cfg(fix_y2038)]
@@ -28,6 +31,7 @@ use crate::timespec::LibcTimespec;
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 use bitflags::bitflags;
@@ -38,6 +42,7 @@ use bitflags::bitflags;
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 #[cfg(not(fix_y2038))]
@@ -50,6 +55,7 @@ pub(crate) type LibcItimerspec = Itimerspec;
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 #[cfg(fix_y2038)]
@@ -65,6 +71,7 @@ pub(crate) struct LibcItimerspec {
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 #[cfg(fix_y2038)]
@@ -83,6 +90,7 @@ impl From<LibcItimerspec> for Itimerspec {
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 #[cfg(fix_y2038)]
@@ -101,6 +109,7 @@ impl From<Itimerspec> for LibcItimerspec {
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 #[cfg(not(fix_y2038))]
@@ -117,6 +126,7 @@ pub(crate) fn as_libc_itimerspec_ptr(itimerspec: &Itimerspec) -> *const c::itime
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 #[cfg(not(fix_y2038))]
@@ -135,6 +145,7 @@ pub(crate) fn as_libc_itimerspec_mut_ptr(
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 bitflags! {
@@ -162,6 +173,7 @@ bitflags! {
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 bitflags! {
@@ -176,7 +188,7 @@ bitflags! {
         const ABSTIME = bitcast!(c::TFD_TIMER_ABSTIME);
 
         /// `TFD_TIMER_CANCEL_ON_SET`
-        #[cfg(not(target_os = "fuchsia"))]
+        #[cfg(not(any(target_os = "fuchsia", target_os = "minix")))]
         #[doc(alias = "TFD_TIMER_CANCEL_ON_SET")]
         const CANCEL_ON_SET = bitcast!(c::TFD_TIMER_CANCEL_ON_SET);
 
@@ -193,6 +205,7 @@ bitflags! {
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
@@ -256,7 +269,8 @@ mod tests {
         target_os = "freebsd",
         target_os = "fuchsia",
         target_os = "illumos",
-        target_os = "netbsd"
+        target_os = "minix",
+    target_os = "netbsd"
     ))]
     #[test]
     fn test_types() {

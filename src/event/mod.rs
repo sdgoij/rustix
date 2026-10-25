@@ -11,6 +11,7 @@ pub mod epoll;
     linux_kernel,
     target_os = "freebsd",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "espidf"
 ))]
 mod eventfd;
@@ -29,6 +30,7 @@ pub use crate::timespec::{Nsecs, Secs, Timespec};
     linux_kernel,
     target_os = "freebsd",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "espidf"
 ))]
 pub use eventfd::{eventfd, EventfdFlags};

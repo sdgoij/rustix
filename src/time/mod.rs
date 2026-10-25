@@ -6,6 +6,7 @@ mod clock;
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 mod timerfd;
@@ -18,6 +19,7 @@ pub use clock::*;
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 pub use timerfd::*;

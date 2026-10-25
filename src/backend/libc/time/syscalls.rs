@@ -7,6 +7,7 @@ use crate::backend::conv::ret;
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 #[cfg(any(all(target_env = "gnu", fix_y2038), not(fix_y2038)))]
@@ -32,6 +33,7 @@ use core::mem::MaybeUninit;
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 use {
@@ -315,6 +317,7 @@ fn clock_settime_old(id: ClockId, timespec: Timespec) -> io::Result<()> {
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 pub(crate) fn timerfd_create(id: TimerfdClockId, flags: TimerfdFlags) -> io::Result<OwnedFd> {
@@ -326,6 +329,7 @@ pub(crate) fn timerfd_create(id: TimerfdClockId, flags: TimerfdFlags) -> io::Res
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 pub(crate) fn timerfd_settime(
@@ -374,6 +378,7 @@ pub(crate) fn timerfd_settime(
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 #[cfg(fix_y2038)]
@@ -447,6 +452,7 @@ fn timerfd_settime_old(
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 pub(crate) fn timerfd_gettime(fd: BorrowedFd<'_>) -> io::Result<Itimerspec> {
@@ -484,6 +490,7 @@ pub(crate) fn timerfd_gettime(fd: BorrowedFd<'_>) -> io::Result<Itimerspec> {
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "netbsd"
 ))]
 #[cfg(fix_y2038)]
