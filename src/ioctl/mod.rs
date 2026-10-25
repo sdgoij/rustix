@@ -324,6 +324,10 @@ type _Opcode = c::c_int;
 ))]
 type _Opcode = c::c_ulong;
 
+// Minix's `sys/ioctl.h` declares the request as `unsigned long`.
+#[cfg(target_os = "minix")]
+type _Opcode = c::c_ulong;
+
 // AIX, Emscripten, Fuchsia, Solaris, and WASI use a `int`.
 #[cfg(any(
     solarish,
