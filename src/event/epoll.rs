@@ -85,7 +85,7 @@ use crate::types::Padding;
 use core::ffi::c_void;
 use core::hash::{Hash, Hasher};
 
-/// `epoll_create1(flags)`—Creates a new epoll object.
+/// `epoll_create1(flags)`â€”Creates a new epoll object.
 ///
 /// Use the [`epoll::CreateFlags::CLOEXEC`] flag to prevent the resulting file
 /// descriptor from being implicitly passed across `exec` boundaries.
@@ -102,7 +102,7 @@ pub fn create(flags: epoll::CreateFlags) -> io::Result<OwnedFd> {
     syscalls::epoll_create(flags)
 }
 
-/// `epoll_ctl(self, EPOLL_CTL_ADD, data, event)`—Adds an element to an epoll
+/// `epoll_ctl(self, EPOLL_CTL_ADD, data, event)`â€”Adds an element to an epoll
 /// object.
 ///
 /// This registers interest in any of the events set in `event_flags` occurring
@@ -141,7 +141,7 @@ pub fn add<EpollFd: AsFd, SourceFd: AsFd>(
     )
 }
 
-/// `epoll_ctl(self, EPOLL_CTL_MOD, target, event)`—Modifies an element in a
+/// `epoll_ctl(self, EPOLL_CTL_MOD, target, event)`â€”Modifies an element in a
 /// given epoll object.
 ///
 /// This sets the events of interest with `target` to `events`.
@@ -172,7 +172,7 @@ pub fn modify<EpollFd: AsFd, SourceFd: AsFd>(
     )
 }
 
-/// `epoll_ctl(self, EPOLL_CTL_DEL, target, NULL)`—Removes an element in a
+/// `epoll_ctl(self, EPOLL_CTL_DEL, target, NULL)`â€”Removes an element in a
 /// given epoll object.
 ///
 /// # References
@@ -187,7 +187,7 @@ pub fn delete<EpollFd: AsFd, SourceFd: AsFd>(epoll: EpollFd, source: SourceFd) -
     syscalls::epoll_del(epoll.as_fd(), source.as_fd())
 }
 
-/// `epoll_wait(self, events, timeout)`—Waits for registered events of
+/// `epoll_wait(self, events, timeout)`â€”Waits for registered events of
 /// interest.
 ///
 /// For each event of interest, an element is written to `events`.
@@ -219,6 +219,7 @@ pub fn wait<EpollFd: AsFd, Buf: Buffer<Event>>(
 
 /// A record of an event that occurred.
 #[repr(C)]
+#[cfg_attr(target_os = "minix", repr(packed))]
 #[cfg_attr(all(not(libc), target_arch = "x86_64"), repr(packed))]
 #[cfg_attr(
     all(

@@ -5,5 +5,10 @@ pub(crate) mod types;
 #[cfg_attr(windows, path = "windows_syscalls.rs")]
 pub(crate) mod syscalls;
 
-#[cfg(any(linux_kernel, target_os = "illumos", target_os = "redox"))]
+#[cfg(any(
+    linux_kernel,
+    target_os = "illumos",
+    target_os = "redox",
+    target_os = "minix"
+))]
 pub mod epoll;

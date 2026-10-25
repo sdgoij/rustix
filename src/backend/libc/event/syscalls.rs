@@ -1,10 +1,15 @@
 //! libc syscalls supporting `rustix::event`.
 
 use crate::backend::c;
-#[cfg(any(linux_kernel, solarish, target_os = "redox"))]
+#[cfg(any(linux_kernel, solarish, target_os = "redox", target_os = "minix"))]
 use crate::backend::conv::ret;
 use crate::backend::conv::ret_c_int;
-#[cfg(any(linux_kernel, target_os = "illumos", target_os = "redox"))]
+#[cfg(any(
+    linux_kernel,
+    target_os = "illumos",
+    target_os = "redox",
+    target_os = "minix"
+))]
 use crate::backend::conv::ret_u32;
 #[cfg(bsd)]
 use crate::event::kqueue::Event;
@@ -21,7 +26,12 @@ use crate::event::EventfdFlags;
 use crate::event::FdSetElement;
 use crate::event::{PollFd, Timespec};
 use crate::io;
-#[cfg(any(linux_kernel, target_os = "illumos", target_os = "redox"))]
+#[cfg(any(
+    linux_kernel,
+    target_os = "illumos",
+    target_os = "redox",
+    target_os = "minix"
+))]
 use crate::utils::as_ptr;
 #[cfg(solarish)]
 use core::mem::MaybeUninit;
@@ -35,9 +45,16 @@ use core::mem::MaybeUninit;
     target_os = "wasi"
 ))]
 use core::ptr::null;
-#[cfg(any(bsd, linux_kernel, solarish, target_os = "redox", target_os = "wasi"))]
+#[cfg(any(
+    bsd,
+    linux_kernel,
+    solarish,
+    target_os = "redox",
+    target_os = "wasi",
+    target_os = "minix"
+))]
 use core::ptr::null_mut;
-#[cfg(any(bsd, linux_kernel, solarish, target_os = "redox"))]
+#[cfg(any(bsd, linux_kernel, solarish, target_os = "redox", target_os = "minix"))]
 use {crate::backend::conv::borrowed_fd, crate::fd::BorrowedFd};
 #[cfg(any(
     bsd,
@@ -46,7 +63,8 @@ use {crate::backend::conv::borrowed_fd, crate::fd::BorrowedFd};
     target_os = "freebsd",
     target_os = "illumos",
     target_os = "espidf",
-    target_os = "redox"
+    target_os = "redox",
+    target_os = "minix"
 ))]
 use {crate::backend::conv::ret_owned_fd, crate::fd::OwnedFd};
 
@@ -391,7 +409,7 @@ pub(crate) fn port_get(port: BorrowedFd<'_>, timeout: Option<&Timespec>) -> io::
 
     let mut event = MaybeUninit::<c::port_event>::uninit();
 
-    // In Rust ≥ 1.65, the `as _` can be `.cast_mut()`.
+    // In Rust ÃƒÂ¢Ã¢â‚¬Â°Ã‚Â¥ 1.65, the `as _` can be `.cast_mut()`.
     unsafe {
         ret(c::port_get(
             borrowed_fd(port),
@@ -438,7 +456,7 @@ pub(crate) unsafe fn port_getn(
         return Ok(0);
     }
 
-    // In Rust ≥ 1.65, the `as _` can be `.cast_mut()`.
+    // In Rust ÃƒÂ¢Ã¢â‚¬Â°Ã‚Â¥ 1.65, the `as _` can be `.cast_mut()`.
     ret(c::port_getn(
         borrowed_fd(port),
         events.0.cast(),
@@ -486,13 +504,23 @@ pub(crate) fn pause() {
 }
 
 #[inline]
-#[cfg(any(linux_kernel, target_os = "illumos", target_os = "redox"))]
+#[cfg(any(
+    linux_kernel,
+    target_os = "illumos",
+    target_os = "redox",
+    target_os = "minix"
+))]
 pub(crate) fn epoll_create(flags: super::epoll::CreateFlags) -> io::Result<OwnedFd> {
     unsafe { ret_owned_fd(c::epoll_create1(bitflags_bits!(flags))) }
 }
 
 #[inline]
-#[cfg(any(linux_kernel, target_os = "illumos", target_os = "redox"))]
+#[cfg(any(
+    linux_kernel,
+    target_os = "illumos",
+    target_os = "redox",
+    target_os = "minix"
+))]
 pub(crate) fn epoll_add(
     epoll: BorrowedFd<'_>,
     source: BorrowedFd<'_>,
@@ -513,7 +541,12 @@ pub(crate) fn epoll_add(
 }
 
 #[inline]
-#[cfg(any(linux_kernel, target_os = "illumos", target_os = "redox"))]
+#[cfg(any(
+    linux_kernel,
+    target_os = "illumos",
+    target_os = "redox",
+    target_os = "minix"
+))]
 pub(crate) fn epoll_mod(
     epoll: BorrowedFd<'_>,
     source: BorrowedFd<'_>,
@@ -531,7 +564,12 @@ pub(crate) fn epoll_mod(
 }
 
 #[inline]
-#[cfg(any(linux_kernel, target_os = "illumos", target_os = "redox"))]
+#[cfg(any(
+    linux_kernel,
+    target_os = "illumos",
+    target_os = "redox",
+    target_os = "minix"
+))]
 pub(crate) fn epoll_del(epoll: BorrowedFd<'_>, source: BorrowedFd<'_>) -> io::Result<()> {
     unsafe {
         ret(c::epoll_ctl(
@@ -544,13 +582,18 @@ pub(crate) fn epoll_del(epoll: BorrowedFd<'_>, source: BorrowedFd<'_>) -> io::Re
 }
 
 #[inline]
-#[cfg(any(linux_kernel, target_os = "illumos", target_os = "redox"))]
+#[cfg(any(
+    linux_kernel,
+    target_os = "illumos",
+    target_os = "redox",
+    target_os = "minix"
+))]
 pub(crate) unsafe fn epoll_wait(
     epoll: BorrowedFd<'_>,
     events: (*mut crate::event::epoll::Event, usize),
     timeout: Option<&Timespec>,
 ) -> io::Result<usize> {
-    // If we're on Linux ≥ 5.11 and a libc that has an `epoll_pwait2`
+    // If we're on Linux ÃƒÂ¢Ã¢â‚¬Â°Ã‚Â¥ 5.11 and a libc that has an `epoll_pwait2`
     // function, and it's y2038-safe, use it.
     #[cfg(all(
         linux_kernel,
@@ -581,7 +624,7 @@ pub(crate) unsafe fn epoll_wait(
         }
     }
 
-    // If we're on Linux ≥ 5.11, use `epoll_pwait2` via `libc::syscall`.
+    // If we're on Linux ÃƒÂ¢Ã¢â‚¬Â°Ã‚Â¥ 5.11, use `epoll_pwait2` via `libc::syscall`.
     #[cfg(all(linux_kernel, feature = "linux_5_11"))]
     {
         syscall! {

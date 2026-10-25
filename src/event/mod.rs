@@ -1,6 +1,11 @@
 //! Event operations.
 
-#[cfg(any(linux_kernel, target_os = "illumos", target_os = "redox"))]
+#[cfg(any(
+    linux_kernel,
+    target_os = "illumos",
+    target_os = "redox",
+    target_os = "minix"
+))]
 pub mod epoll;
 #[cfg(any(
     linux_kernel,
