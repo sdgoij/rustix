@@ -59,6 +59,7 @@ fn msg_iov_len(len: usize) -> c::c_int {
     target_os = "haiku",
     target_os = "hurd",
     target_os = "nto",
+    target_os = "minix",
 ))]
 #[inline]
 fn msg_control_len(len: usize) -> c::socklen_t {
@@ -78,6 +79,7 @@ fn msg_control_len(len: usize) -> c::socklen_t {
     target_os = "fuchsia",
     target_os = "haiku",
     target_os = "hurd",
+    target_os = "minix",
     target_os = "nto",
     target_os = "vita",
     target_os = "wasi",
@@ -174,7 +176,7 @@ pub(crate) unsafe fn with_msghdr<R>(
 }
 
 /// Create a zero-initialized message header struct value.
-#[cfg(unix)]
+#[cfg(any(unix, target_os = "minix"))]
 pub(crate) fn zero_msghdr() -> c::msghdr {
     // SAFETY: We can't initialize all the fields by value because on some
     // platforms the `msghdr` struct in the libc crate contains private padding
