@@ -27,11 +27,6 @@ pub mod os {
         pub use std::os::unix::io::{
             AsFd, AsRawFd, BorrowedFd, FromRawFd, IntoRawFd, OwnedFd, RawFd,
         };
-        // minix is not `cfg(unix)`, but its std exposes the cross-platform
-        // `std::os::fd` (the fork's `library/std/src/os/mod.rs` lists it), which
-        // is the same set of traits and types this module re-exports on unix.
-        #[cfg(target_os = "minix")]
-        pub use std::os::fd::{AsFd, AsRawFd, BorrowedFd, FromRawFd, IntoRawFd, OwnedFd, RawFd};
     }
 
     #[cfg(windows)]

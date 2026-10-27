@@ -14,8 +14,6 @@ use core::mem::{self, MaybeUninit};
 use core::num::{NonZeroU8, NonZeroUsize};
 #[cfg(all(feature = "std", unix))]
 use std::os::unix::ffi::OsStrExt;
-#[cfg(all(feature = "std", target_os = "minix"))]
-use crate::path::minix_ffi::OsStrExt;
 #[cfg(all(
     feature = "std",
     target_os = "wasi",

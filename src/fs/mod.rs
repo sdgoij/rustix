@@ -136,8 +136,13 @@ pub use xattr::*;
 
 /// Re-export types common to POSIX-ish platforms.
 #[cfg(feature = "std")]
-#[cfg(unix)]
+#[cfg(all(unix, not(target_os = "minix")))]
 pub use std::os::unix::fs::{DirEntryExt, FileExt, FileTypeExt, MetadataExt, OpenOptionsExt};
+// minix has the offset and metadata traits; the file-type and dirent-inode
+// extension traits are not part of its std surface yet.
+#[cfg(feature = "std")]
+#[cfg(target_os = "minix")]
+pub use std::os::unix::fs::{FileExt, MetadataExt, OpenOptionsExt};
 #[cfg(feature = "std")]
 #[cfg(all(wasi_ext, target_os = "wasi"))]
 pub use std::os::wasi::fs::{DirEntryExt, FileExt, FileTypeExt, MetadataExt, OpenOptionsExt};

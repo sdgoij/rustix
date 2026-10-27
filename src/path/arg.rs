@@ -8,8 +8,6 @@
 
 use crate::ffi::CStr;
 use crate::io;
-#[cfg(all(feature = "std", target_os = "minix"))]
-use crate::path::minix_ffi::{OsStrExt as _, OsStringExt as _};
 use crate::path::{DecInt, SMALL_PATH_BUFFER_SIZE};
 #[cfg(feature = "alloc")]
 use alloc::borrow::ToOwned as _;
