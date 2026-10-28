@@ -157,10 +157,13 @@ pub fn sysinfo() -> Sysinfo {
 ///  - [Linux]
 ///
 /// [Linux]: https://man7.org/linux/man-pages/man2/sethostname.2.html
+// minix has no way to set the host name (PM serves `uname` only), so there is
+// no function to offer.
 #[cfg(not(any(
     target_os = "emscripten",
     target_os = "espidf",
     target_os = "horizon",
+    target_os = "minix",
     target_os = "redox",
     target_os = "vita",
     target_os = "wasi"
@@ -185,6 +188,7 @@ pub fn sethostname(name: &[u8]) -> io::Result<()> {
     target_os = "haiku",
     target_os = "horizon",
     target_os = "illumos",
+    target_os = "minix",
     target_os = "redox",
     target_os = "solaris",
     target_os = "vita",

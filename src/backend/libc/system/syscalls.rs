@@ -52,6 +52,7 @@ pub(crate) fn sysinfo() -> Sysinfo {
     target_os = "emscripten",
     target_os = "espidf",
     target_os = "horizon",
+    target_os = "minix",
     target_os = "redox",
     target_os = "vita",
     target_os = "wasi"
@@ -73,6 +74,7 @@ pub(crate) fn sethostname(name: &[u8]) -> io::Result<()> {
     target_os = "illumos",
     target_os = "haiku",
     target_os = "horizon",
+    target_os = "minix",
     target_os = "redox",
     target_os = "solaris",
     target_os = "vita",
