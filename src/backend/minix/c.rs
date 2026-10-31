@@ -8,6 +8,7 @@
 //! surface rather than the current call graph.
 #![allow(dead_code)]
 #![allow(non_camel_case_types)]
+#![allow(non_snake_case)]
 
 pub(crate) use core::ffi::{c_char, c_int, c_long, c_uint, c_ulong, c_ushort, c_void};
 
@@ -71,6 +72,160 @@ pub(crate) struct utsname {
 pub(crate) const STDIN_FILENO: c_int = 0;
 pub(crate) const STDOUT_FILENO: c_int = 1;
 pub(crate) const STDERR_FILENO: c_int = 2;
+
+/// `id_t`, which `procctl` names.
+pub(crate) type id_t = u32;
+
+/// `struct flock`, from `tools/c-include/fcntl.h`.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct flock {
+    pub l_type: c_short,
+    pub l_whence: c_short,
+    pub l_start: off_t,
+    pub l_len: off_t,
+    pub l_pid: pid_t,
+}
+
+/// Lock types for `struct flock`.
+pub(crate) const F_RDLCK: c_short = 0;
+pub(crate) const F_WRLCK: c_short = 1;
+pub(crate) const F_UNLCK: c_short = 2;
+
+/// `TIOCSCTTY`, the BSD `_IO('t', 37)` encoding.
+pub(crate) const TIOCSCTTY: c_ulong = 0x7425;
+
+// Exit statuses, from tools/c-include/stdlib.h.
+pub(crate) const EXIT_SUCCESS: c_int = 0;
+pub(crate) const EXIT_FAILURE: c_int = 1;
+/// `128 + SIGABRT`, which is how a shell reports an abort.
+pub(crate) const EXIT_SIGNALED_SIGABRT: c_int = 128 + 6;
+
+// Signals. The port's own set is the one `tools/c-include/signal.h` publishes;
+// the rest are numbered above it because PM never delivers them, and they
+// exist so the `Signal` constants have distinct values.
+pub(crate) const SIGHUP: c_int = 1;
+pub(crate) const SIGINT: c_int = 2;
+pub(crate) const SIGQUIT: c_int = 3;
+pub(crate) const SIGILL: c_int = 4;
+pub(crate) const SIGTRAP: c_int = 5;
+pub(crate) const SIGABRT: c_int = 6;
+pub(crate) const SIGBUS: c_int = 7;
+pub(crate) const SIGFPE: c_int = 8;
+pub(crate) const SIGKILL: c_int = 9;
+pub(crate) const SIGUSR1: c_int = 10;
+pub(crate) const SIGSEGV: c_int = 11;
+pub(crate) const SIGUSR2: c_int = 12;
+pub(crate) const SIGPIPE: c_int = 13;
+pub(crate) const SIGALRM: c_int = 14;
+pub(crate) const SIGTERM: c_int = 15;
+pub(crate) const SIGCHLD: c_int = 20;
+pub(crate) const SIGWINCH: c_int = 28;
+pub(crate) const SIGSYS: c_int = 31;
+pub(crate) const SIGSTKFLT: c_int = 16;
+pub(crate) const SIGCONT: c_int = 18;
+pub(crate) const SIGSTOP: c_int = 19;
+pub(crate) const SIGTTIN: c_int = 21;
+pub(crate) const SIGTTOU: c_int = 22;
+pub(crate) const SIGURG: c_int = 23;
+pub(crate) const SIGXCPU: c_int = 24;
+pub(crate) const SIGXFSZ: c_int = 25;
+pub(crate) const SIGVTALRM: c_int = 26;
+pub(crate) const SIGPROF: c_int = 27;
+pub(crate) const SIGIO: c_int = 29;
+pub(crate) const SIGPOLL: c_int = SIGIO;
+pub(crate) const SIGPWR: c_int = 30;
+pub(crate) const SIGTSTP: c_int = 32;
+
+// Resource numbers, from tools/c-include/sys/resource.h.
+pub(crate) const RLIMIT_CPU: c_int = 0;
+pub(crate) const RLIMIT_FSIZE: c_int = 1;
+pub(crate) const RLIMIT_DATA: c_int = 2;
+pub(crate) const RLIMIT_STACK: c_int = 3;
+pub(crate) const RLIMIT_CORE: c_int = 4;
+pub(crate) const RLIMIT_RSS: c_int = 5;
+pub(crate) const RLIMIT_NPROC: c_int = 6;
+pub(crate) const RLIMIT_NOFILE: c_int = 7;
+pub(crate) const RLIMIT_MEMLOCK: c_int = 8;
+pub(crate) const RLIMIT_AS: c_int = 9;
+pub(crate) const RLIMIT_LOCKS: c_int = 10;
+pub(crate) const RLIMIT_SIGPENDING: c_int = 11;
+pub(crate) const RLIMIT_MSGQUEUE: c_int = 12;
+pub(crate) const RLIMIT_NICE: c_int = 13;
+pub(crate) const RLIMIT_RTPRIO: c_int = 14;
+pub(crate) const RLIMIT_RTTIME: c_int = 15;
+
+// `getpriority`/`setpriority` targets.
+pub(crate) const PRIO_PROCESS: c_int = 0;
+pub(crate) const PRIO_PGRP: c_int = 1;
+pub(crate) const PRIO_USER: c_int = 2;
+
+// `wait` options and the `siginfo_t` codes, from tools/c-include/sys/wait.h.
+pub(crate) const WNOHANG: c_int = 1;
+pub(crate) const WUNTRACED: c_int = 2;
+pub(crate) const WCONTINUED: c_int = 8;
+pub(crate) const WEXITED: c_int = 0x0000_0004;
+pub(crate) const WSTOPPED: c_int = 0x0000_0002;
+pub(crate) const WNOWAIT: c_int = 0x0100_0000;
+pub(crate) const CLD_EXITED: c_int = 1;
+pub(crate) const CLD_KILLED: c_int = 2;
+pub(crate) const CLD_DUMPED: c_int = 3;
+pub(crate) const CLD_TRAPPED: c_int = 4;
+pub(crate) const CLD_STOPPED: c_int = 5;
+pub(crate) const CLD_CONTINUED: c_int = 6;
+
+pub(crate) const fn WIFEXITED(status: c_int) -> bool {
+    status & 0x7f == 0
+}
+
+pub(crate) const fn WIFSIGNALED(status: c_int) -> bool {
+    status & 0x7f != 0 && status & 0x7f != 0x7f
+}
+
+pub(crate) const fn WIFSTOPPED(status: c_int) -> bool {
+    status & 0xff == 0x7f
+}
+
+/// PM has no stop or continue encoding, so a child never reports one.
+pub(crate) const fn WIFCONTINUED(_status: c_int) -> bool {
+    false
+}
+
+pub(crate) const fn WEXITSTATUS(status: c_int) -> c_int {
+    (status >> 8) & 0xff
+}
+
+pub(crate) const fn WTERMSIG(status: c_int) -> c_int {
+    status & 0x7f
+}
+
+pub(crate) const fn WSTOPSIG(status: c_int) -> c_int {
+    WEXITSTATUS(status)
+}
+
+/// The `waitid` reply. The port never builds one, but `WaitIdStatus` wraps it
+/// and reads these fields.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct siginfo_t {
+    pub si_signo: c_int,
+    pub si_errno: c_int,
+    pub si_code: c_int,
+    pub si_pid: pid_t,
+    pub si_uid: uid_t,
+    pub si_status: c_int,
+}
+
+impl siginfo_t {
+    /// POSIX guarantees `si_status` is valid for a status `waitid` reports.
+    ///
+    /// # Safety
+    ///
+    /// Only call this on a `siginfo_t` a `waitid` call filled.
+    pub(crate) unsafe fn si_status(&self) -> crate::ffi::c_int {
+        self.si_status
+    }
+}
 
 // `open` flags (tools/c-include/fcntl.h).
 pub(crate) const O_RDONLY: c_int = 0o00;

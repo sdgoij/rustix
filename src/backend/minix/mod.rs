@@ -27,6 +27,18 @@ pub(crate) mod system;
 #[cfg(feature = "pipe")]
 pub(crate) mod pipe;
 
+#[cfg(feature = "process")]
+pub(crate) mod process;
+
+#[cfg(any(feature = "process", feature = "runtime"))]
+pub(crate) mod pid;
+
+#[cfg(any(feature = "fs", feature = "thread", feature = "process"))]
+pub(crate) mod ugid;
+
+#[cfg(feature = "param")]
+pub(crate) mod param;
+
 /// The minimum `IOV_MAX` POSIX requires. The VFS has no `readv`, so the
 /// scatter/gather calls walk this many slices at most, as on any target
 /// without the vector calls.
