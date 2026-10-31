@@ -1,8 +1,7 @@
 //! minix syscalls supporting `rustix::fs`.
 
 use crate::backend::c;
-#[cfg(any(not(target_os = "redox"), feature = "alloc"))]
-use crate::backend::conv::at_path;
+use crate::backend::conv::{two_paths, with_dirfd};
 use crate::backend::conv::{borrowed_fd, errno, owned_fd_from_raw};
 use crate::fd::{BorrowedFd, OwnedFd};
 #[allow(unused_imports)]
@@ -245,8 +244,13 @@ pub(crate) fn openat(
     )))]
     let mode: c::mode_t = mode.bits() as _;
 
-    let path = at_path(dirfd, path)?;
-    let raw = unsafe { minix_std::fs::open(path, bitflags_bits!(oflags), mode) }.map_err(errno)?;
+    let path = path.to_bytes();
+    let raw = unsafe {
+        with_dirfd(dirfd, path, || {
+            minix_std::fs::open(path, bitflags_bits!(oflags), mode)
+        })
+    }
+    .map_err(errno)?;
     // SAFETY: `open` hands back a descriptor the caller now owns.
     Ok(unsafe { owned_fd_from_raw(raw) })
 }
@@ -288,10 +292,10 @@ pub(crate) unsafe fn readlinkat(
     path: &CStr,
     buf: (*mut u8, usize),
 ) -> io::Result<usize> {
-    let path = at_path(dirfd, path)?;
+    let path = path.to_bytes();
     // SAFETY: the caller guarantees `buf` names `buf.1` writable bytes.
     let out = unsafe { core::slice::from_raw_parts_mut(buf.0, buf.1) };
-    minix_std::fs::readlink(path, out).map_err(errno)
+    unsafe { with_dirfd(dirfd, path, || minix_std::fs::readlink(path, out)) }.map_err(errno)
 }
 
 pub(crate) fn mkdir(path: &CStr, mode: Mode) -> io::Result<()> {
@@ -300,8 +304,13 @@ pub(crate) fn mkdir(path: &CStr, mode: Mode) -> io::Result<()> {
 
 #[cfg(not(target_os = "redox"))]
 pub(crate) fn mkdirat(dirfd: BorrowedFd<'_>, path: &CStr, mode: Mode) -> io::Result<()> {
-    let path = at_path(dirfd, path)?;
-    minix_std::fs::mkdir(path, mode.bits() as c::mode_t).map_err(errno)
+    let path = path.to_bytes();
+    unsafe {
+        with_dirfd(dirfd, path, || {
+            minix_std::fs::mkdir(path, mode.bits() as c::mode_t)
+        })
+    }
+    .map_err(errno)
 }
 
 #[cfg(linux_kernel)]
@@ -374,8 +383,8 @@ pub(crate) fn linkat(
 
     #[cfg(not(target_os = "macos"))]
     {
-        let old = at_path(old_dirfd, old_path)?;
-        let new = at_path(new_dirfd, new_path)?;
+        let old = old_path.to_bytes();
+        let new = new_path.to_bytes();
         if flags.intersects(!AtFlags::SYMLINK_FOLLOW) {
             return Err(io::Errno::INVAL);
         }
@@ -384,7 +393,8 @@ pub(crate) fn linkat(
         if flags.contains(AtFlags::SYMLINK_FOLLOW) {
             return Err(io::Errno::NOSYS);
         }
-        minix_std::fs::link(old, new).map_err(errno)
+        unsafe { two_paths(old_dirfd, old, new_dirfd, new, || minix_std::fs::link(old, new)) }
+            .map_err(errno)
     }
 }
 
@@ -432,15 +442,20 @@ pub(crate) fn unlinkat(dirfd: BorrowedFd<'_>, path: &CStr, flags: AtFlags) -> io
 
     #[cfg(not(target_os = "macos"))]
     {
-        let path = at_path(dirfd, path)?;
+        let path = path.to_bytes();
         if flags.intersects(!AtFlags::REMOVEDIR) {
             return Err(io::Errno::INVAL);
         }
-        if flags.contains(AtFlags::REMOVEDIR) {
-            minix_std::fs::rmdir(path).map_err(errno)
-        } else {
-            minix_std::fs::unlink(path).map_err(errno)
+        unsafe {
+            with_dirfd(dirfd, path, || {
+                if flags.contains(AtFlags::REMOVEDIR) {
+                    minix_std::fs::rmdir(path)
+                } else {
+                    minix_std::fs::unlink(path)
+                }
+            })
         }
+        .map_err(errno)
     }
 }
 
@@ -483,9 +498,10 @@ pub(crate) fn renameat(
 
     #[cfg(not(target_os = "macos"))]
     {
-        let old = at_path(old_dirfd, old_path)?;
-        let new = at_path(new_dirfd, new_path)?;
-        minix_std::fs::rename(old, new).map_err(errno)
+        let old = old_path.to_bytes();
+        let new = new_path.to_bytes();
+        unsafe { two_paths(old_dirfd, old, new_dirfd, new, || minix_std::fs::rename(old, new)) }
+            .map_err(errno)
     }
 }
 
@@ -630,8 +646,13 @@ pub(crate) fn symlinkat(
     new_dirfd: BorrowedFd<'_>,
     new_path: &CStr,
 ) -> io::Result<()> {
-    let new_path = at_path(new_dirfd, new_path)?;
-    minix_std::fs::symlink(old_path.to_bytes(), new_path).map_err(errno)
+    let new_path = new_path.to_bytes();
+    unsafe {
+        with_dirfd(new_dirfd, new_path, || {
+            minix_std::fs::symlink(old_path.to_bytes(), new_path)
+        })
+    }
+    .map_err(errno)
 }
 
 pub(crate) fn stat(path: &CStr) -> io::Result<Stat> {
@@ -730,15 +751,20 @@ pub(crate) fn statat(dirfd: BorrowedFd<'_>, path: &CStr, flags: AtFlags) -> io::
             target_arch = "mips64r6"
         )
     )))]
-    let path = at_path(dirfd, path)?;
+    let path = path.to_bytes();
     if flags.intersects(!AtFlags::SYMLINK_NOFOLLOW) {
         return Err(io::Errno::INVAL);
     }
-    if flags.contains(AtFlags::SYMLINK_NOFOLLOW) {
-        minix_std::fs::lstat_bytes(path).map_err(errno)
-    } else {
-        minix_std::fs::stat_bytes(path).map_err(errno)
+    unsafe {
+        with_dirfd(dirfd, path, || {
+            if flags.contains(AtFlags::SYMLINK_NOFOLLOW) {
+                minix_std::fs::lstat_bytes(path)
+            } else {
+                minix_std::fs::stat_bytes(path)
+            }
+        })
     }
+    .map_err(errno)
 }
 
 #[cfg(all(
@@ -820,7 +846,7 @@ pub(crate) fn accessat(
 
     #[cfg(not(target_os = "macos"))]
     {
-        let path = at_path(dirfd, path)?;
+        let path = path.to_bytes();
         if flags.intersects(!(AtFlags::EACCESS | AtFlags::SYMLINK_NOFOLLOW)) {
             return Err(io::Errno::INVAL);
         }
@@ -828,7 +854,12 @@ pub(crate) fn accessat(
         if flags.contains(AtFlags::SYMLINK_NOFOLLOW) {
             return Err(io::Errno::NOSYS);
         }
-        minix_std::fs::access(path, access.bits() as u32).map_err(errno)
+        unsafe {
+            with_dirfd(dirfd, path, || {
+                minix_std::fs::access(path, access.bits() as u32)
+            })
+        }
+        .map_err(errno)
     }
 }
 
@@ -1077,7 +1108,7 @@ pub(crate) fn chmodat(
     mode: Mode,
     flags: AtFlags,
 ) -> io::Result<()> {
-    let path = at_path(dirfd, path)?;
+    let path = path.to_bytes();
     if flags.intersects(!AtFlags::SYMLINK_NOFOLLOW) {
         return Err(io::Errno::INVAL);
     }
@@ -1085,7 +1116,12 @@ pub(crate) fn chmodat(
     if flags.contains(AtFlags::SYMLINK_NOFOLLOW) {
         return Err(io::Errno::NOSYS);
     }
-    minix_std::fs::chmod(path, mode.bits() as c::mode_t).map_err(errno)
+    unsafe {
+        with_dirfd(dirfd, path, || {
+            minix_std::fs::chmod(path, mode.bits() as c::mode_t)
+        })
+    }
+    .map_err(errno)
 }
 
 #[cfg(linux_kernel)]
@@ -1157,12 +1193,12 @@ pub(crate) fn chownat(
     group: Option<Gid>,
     flags: AtFlags,
 ) -> io::Result<()> {
-    let path = at_path(dirfd, path)?;
+    let path = path.to_bytes();
     if flags != AtFlags::empty() {
         return Err(io::Errno::NOSYS);
     }
     let (ow, gr) = crate::ugid::translate_fchown_args(owner, group);
-    minix_std::fs::chown(path, ow, gr).map_err(errno)
+    unsafe { with_dirfd(dirfd, path, || minix_std::fs::chown(path, ow, gr)) }.map_err(errno)
 }
 
 #[cfg(not(any(
@@ -1180,13 +1216,10 @@ pub(crate) fn mknodat(
     mode: Mode,
     dev: Dev,
 ) -> io::Result<()> {
-    let path = at_path(dirfd, path)?;
-    minix_std::fs::mknod(
-        path,
-        (mode.bits() | file_type.as_raw_mode()) as c::mode_t,
-        dev.try_into().map_err(|_| io::Errno::PERM)?,
-    )
-    .map_err(errno)
+    let path = path.to_bytes();
+    let mode = (mode.bits() | file_type.as_raw_mode()) as c::mode_t;
+    let dev = dev.try_into().map_err(|_| io::Errno::PERM)?;
+    unsafe { with_dirfd(dirfd, path, || minix_std::fs::mknod(path, mode, dev)) }.map_err(errno)
 }
 
 #[cfg(linux_kernel)]

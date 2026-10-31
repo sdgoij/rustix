@@ -29,15 +29,16 @@ pub(crate) fn chroot(_path: &CStr) -> io::Result<()> {
     Err(io::Errno::NOSYS)
 }
 
-pub(crate) fn getcwd(_buf: &mut [MaybeUninit<u8>]) -> io::Result<()> {
-    // The runtime has no `getcwd`; the C library's own walk is the only
-    // implementation on this port so far.
-    Err(io::Errno::NOSYS)
+pub(crate) fn getcwd(buf: &mut [MaybeUninit<u8>]) -> io::Result<()> {
+    // SAFETY: `MaybeUninit<u8>` has the same layout as `u8`, and the walk only
+    // writes whole bytes.
+    let out = unsafe { core::slice::from_raw_parts_mut(buf.as_mut_ptr().cast::<u8>(), buf.len()) };
+    minix_std::fs::getcwd(out).map(|_| ()).map_err(errno)
 }
 
 pub(crate) fn getppid() -> Option<Pid> {
-    // PM does not report a parent to the child.
-    None
+    let (_, ppid) = minix_std::process::getpid().ok()?;
+    Pid::from_raw(ppid)
 }
 
 pub(crate) fn getpgid(pid: Option<Pid>) -> io::Result<Pid> {

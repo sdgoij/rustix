@@ -59,18 +59,89 @@ pub(super) unsafe fn owned_fd_from_raw(raw: LibcFd) -> OwnedFd {
     unsafe { OwnedFd::from_raw_fd(raw as RawFd) }
 }
 
-/// The path a `*at` call may use, or `ENOSYS` when it may not.
+/// Run `f` with the process cwd moved to `dirfd`, then put it back.
 ///
-/// The VFS has only path-based calls, so `AT_FDCWD` and an absolute path need
-/// no translation. A real directory descriptor would need the path in it,
-/// which the runtime does not expose, so that case reports `ENOSYS` rather
-/// than resolving the name against the wrong directory.
-#[inline]
-pub(super) fn at_path<'a>(dirfd: BorrowedFd<'_>, path: &'a CStr) -> io::Result<&'a [u8]> {
-    let bytes = path.to_bytes();
-    if dirfd.as_raw_fd() == c::AT_FDCWD || bytes.first() == Some(&b'/') {
-        Ok(bytes)
-    } else {
-        Err(io::Errno::NOSYS)
+/// The VFS has only path-based calls, so a directory descriptor handed to an
+/// `*at` function becomes an `fchdir` for the length of one call. `AT_FDCWD`
+/// and an absolute path need no move at all.
+///
+/// # Safety
+///
+/// `f` must not rely on the cwd being where the caller left it, and no other
+/// thread may use a relative path while it runs: the cwd is process state.
+pub(super) unsafe fn with_dirfd<R>(
+    dirfd: BorrowedFd<'_>,
+    path: &[u8],
+    f: impl FnOnce() -> Result<R, minix_std::MinixErr>,
+) -> Result<R, minix_std::MinixErr> {
+    use minix_std::MinixErr;
+
+    if dirfd.as_raw_fd() == c::AT_FDCWD || path.first() == Some(&b'/') {
+        return f();
     }
+    if dirfd.as_raw_fd() < 0 {
+        return Err(MinixErr(io::Errno::BADF.raw_os_error()));
+    }
+
+    let mut saved = [0u8; minix_std::fs::PATH_MAX];
+    let len = match minix_std::fs::getcwd(&mut saved) {
+        Ok(len) => len,
+        Err(e) => return Err(e),
+    };
+    if let Err(e) = minix_std::fs::fchdir(dirfd.as_raw_fd()) {
+        return Err(e);
+    }
+    let out = f();
+    if minix_std::fs::chdir(&saved[..len]).is_err() {
+        // The call already ran. A cwd that cannot be put back would misdirect
+        // every later relative path, so report it rather than continue.
+        return Err(MinixErr(io::Errno::IO.raw_os_error()));
+    }
+    out
+}
+
+/// Run a two-name call with each name resolved against its own `dirfd`.
+///
+/// One `fchdir` cannot serve two directories, so the pairs that would need
+/// more than one resolution are refused rather than half applied. A name that
+/// was relative to the cwd also changes meaning under the move, which is why a
+/// cwd-relative name mixed with a dirfd-relative one is refused too.
+///
+/// # Safety
+///
+/// As [`with_dirfd`].
+pub(super) unsafe fn two_paths<R>(
+    old_dirfd: BorrowedFd<'_>,
+    old: &[u8],
+    new_dirfd: BorrowedFd<'_>,
+    new: &[u8],
+    f: impl FnOnce() -> Result<R, minix_std::MinixErr>,
+) -> Result<R, minix_std::MinixErr> {
+    use minix_std::MinixErr;
+
+    let old_via_fd = !is_absolute(old) && old_dirfd.as_raw_fd() != c::AT_FDCWD;
+    let new_via_fd = !is_absolute(new) && new_dirfd.as_raw_fd() != c::AT_FDCWD;
+    let old_via_cwd = !is_absolute(old) && old_dirfd.as_raw_fd() == c::AT_FDCWD;
+    let new_via_cwd = !is_absolute(new) && new_dirfd.as_raw_fd() == c::AT_FDCWD;
+
+    if old_via_fd && new_via_fd {
+        if old_dirfd.as_raw_fd() != new_dirfd.as_raw_fd() {
+            return Err(MinixErr(io::Errno::NOSYS.raw_os_error()));
+        }
+        return unsafe { with_dirfd(old_dirfd, old, f) };
+    }
+    if (old_via_fd && new_via_cwd) || (new_via_fd && old_via_cwd) {
+        return Err(MinixErr(io::Errno::NOSYS.raw_os_error()));
+    }
+    if old_via_fd {
+        return unsafe { with_dirfd(old_dirfd, old, f) };
+    }
+    if new_via_fd {
+        return unsafe { with_dirfd(new_dirfd, new, f) };
+    }
+    f()
+}
+
+fn is_absolute(path: &[u8]) -> bool {
+    path.first() == Some(&b'/')
 }
