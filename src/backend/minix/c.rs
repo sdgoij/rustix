@@ -52,6 +52,15 @@ pub(crate) struct timespec {
     pub tv_nsec: c_long,
 }
 
+/// `struct itimerspec`, two `timespec`s in the order the VFS timerfd messages
+/// carry them.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct itimerspec {
+    pub it_interval: timespec,
+    pub it_value: timespec,
+}
+
 /// `PIPE_BUF`: the largest write POSIX guarantees is atomic, which is the
 /// figure `tools/c-include/limits.h` publishes.
 pub(crate) const PIPE_BUF: usize = 4096;
@@ -143,6 +152,26 @@ pub(crate) const EPOLLET: c_uint = 1 << 31;
 pub(crate) const EFD_SEMAPHORE: c_int = 1;
 pub(crate) const EFD_CLOEXEC: c_int = O_CLOEXEC;
 pub(crate) const EFD_NONBLOCK: c_int = O_NONBLOCK;
+
+// Clock ids. PM serves `CLOCK_REALTIME` and `CLOCK_MONOTONIC`; the rest keep
+// the standard numbering so the `ClockId` enum has distinct values, and PM
+// answers `EINVAL` for them.
+pub(crate) const CLOCK_REALTIME: clockid_t = 0;
+pub(crate) const CLOCK_MONOTONIC: clockid_t = 1;
+pub(crate) const CLOCK_PROCESS_CPUTIME_ID: clockid_t = 2;
+pub(crate) const CLOCK_THREAD_CPUTIME_ID: clockid_t = 3;
+pub(crate) const CLOCK_MONOTONIC_RAW: clockid_t = 4;
+pub(crate) const CLOCK_REALTIME_COARSE: clockid_t = 5;
+pub(crate) const CLOCK_MONOTONIC_COARSE: clockid_t = 6;
+pub(crate) const CLOCK_BOOTTIME: clockid_t = 7;
+pub(crate) const CLOCK_REALTIME_ALARM: clockid_t = 8;
+pub(crate) const CLOCK_BOOTTIME_ALARM: clockid_t = 9;
+
+// `timerfd_create`/`timerfd_settime` flags, from `tools/c-include/sys/timerfd.h`.
+pub(crate) const TFD_CLOEXEC: c_int = O_CLOEXEC;
+pub(crate) const TFD_NONBLOCK: c_int = O_NONBLOCK;
+pub(crate) const TFD_TIMER_ABSTIME: c_int = 1;
+pub(crate) const TFD_TIMER_CANCEL_ON_SET: c_int = 2;
 
 // Exit statuses, from tools/c-include/stdlib.h.
 pub(crate) const EXIT_SUCCESS: c_int = 0;
