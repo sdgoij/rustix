@@ -39,6 +39,9 @@ pub(crate) mod ugid;
 #[cfg(feature = "param")]
 pub(crate) mod param;
 
+#[cfg(feature = "event")]
+pub(crate) mod event;
+
 /// The minimum `IOV_MAX` POSIX requires. The VFS has no `readv`, so the
 /// scatter/gather calls walk this many slices at most, as on any target
 /// without the vector calls.

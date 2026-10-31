@@ -95,6 +95,55 @@ pub(crate) const F_UNLCK: c_short = 2;
 /// `TIOCSCTTY`, the BSD `_IO('t', 37)` encoding.
 pub(crate) const TIOCSCTTY: c_ulong = 0x7425;
 
+/// `struct pollfd`, from `tools/c-include/poll.h`.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct pollfd {
+    pub fd: c_int,
+    pub events: c_short,
+    pub revents: c_short,
+}
+
+// `poll` flags. The port publishes the first six; the rest are the standard
+// values, which is what the VFS's epoll/poll layer compares against.
+pub(crate) const POLLIN: c_short = 0x001;
+pub(crate) const POLLPRI: c_short = 0x002;
+pub(crate) const POLLOUT: c_short = 0x004;
+pub(crate) const POLLERR: c_short = 0x008;
+pub(crate) const POLLHUP: c_short = 0x010;
+pub(crate) const POLLNVAL: c_short = 0x020;
+pub(crate) const POLLRDNORM: c_short = 0x040;
+pub(crate) const POLLRDBAND: c_short = 0x080;
+pub(crate) const POLLWRNORM: c_short = 0x100;
+pub(crate) const POLLWRBAND: c_short = 0x200;
+
+// epoll flags, from `tools/c-include/sys/epoll.h`.
+pub(crate) const EPOLL_CLOEXEC: c_int = O_CLOEXEC;
+pub(crate) const EPOLL_CTL_ADD: c_int = 1;
+pub(crate) const EPOLL_CTL_DEL: c_int = 2;
+pub(crate) const EPOLL_CTL_MOD: c_int = 3;
+pub(crate) const EPOLLIN: c_uint = 0x001;
+pub(crate) const EPOLLPRI: c_uint = 0x002;
+pub(crate) const EPOLLOUT: c_uint = 0x004;
+pub(crate) const EPOLLERR: c_uint = 0x008;
+pub(crate) const EPOLLHUP: c_uint = 0x010;
+pub(crate) const EPOLLNVAL: c_uint = 0x020;
+pub(crate) const EPOLLRDNORM: c_uint = 0x040;
+pub(crate) const EPOLLRDBAND: c_uint = 0x080;
+pub(crate) const EPOLLWRNORM: c_uint = 0x100;
+pub(crate) const EPOLLWRBAND: c_uint = 0x200;
+pub(crate) const EPOLLMSG: c_uint = 0x400;
+pub(crate) const EPOLLRDHUP: c_uint = 0x2000;
+pub(crate) const EPOLLEXCLUSIVE: c_uint = 1 << 28;
+pub(crate) const EPOLLWAKEUP: c_uint = 1 << 29;
+pub(crate) const EPOLLONESHOT: c_uint = 1 << 30;
+pub(crate) const EPOLLET: c_uint = 1 << 31;
+
+// `eventfd` flags.
+pub(crate) const EFD_SEMAPHORE: c_int = 1;
+pub(crate) const EFD_CLOEXEC: c_int = O_CLOEXEC;
+pub(crate) const EFD_NONBLOCK: c_int = O_NONBLOCK;
+
 // Exit statuses, from tools/c-include/stdlib.h.
 pub(crate) const EXIT_SUCCESS: c_int = 0;
 pub(crate) const EXIT_FAILURE: c_int = 1;
