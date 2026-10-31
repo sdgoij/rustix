@@ -220,7 +220,10 @@ pub fn wait<EpollFd: AsFd, Buf: Buffer<Event>>(
 /// A record of an event that occurred.
 #[repr(C)]
 #[cfg_attr(target_os = "minix", repr(packed))]
-#[cfg_attr(all(not(libc), target_arch = "x86_64"), repr(packed))]
+#[cfg_attr(
+    all(not(libc), target_arch = "x86_64", not(target_os = "minix")),
+    repr(packed)
+)]
 #[cfg_attr(
     all(
         libc,
