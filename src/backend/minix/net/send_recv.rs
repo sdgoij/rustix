@@ -1,0 +1,89 @@
+//! The `MSG_*` flags `rustix::net` names, over the values the port publishes.
+//!
+//! Every flag `tools/c-include/sys/socket.h` defines is represented; a call
+//! that cannot honour one refuses it (`syscalls::check_flags`) rather than
+//! dropping the bit.
+
+use crate::backend::c;
+use bitflags::bitflags;
+
+bitflags! {
+    /// `MSG_*` flags for use with [`send`], [`sendto`], and related
+    /// functions.
+    ///
+    /// [`send`]: crate::net::send
+    /// [`sendto`]: crate::net::sendto
+    #[repr(transparent)]
+    #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+    pub struct SendFlags: u32 {
+        /// `MSG_CONFIRM`
+        const CONFIRM = bitcast!(c::MSG_CONFIRM);
+        /// `MSG_DONTROUTE`
+        const DONTROUTE = bitcast!(c::MSG_DONTROUTE);
+        /// `MSG_DONTWAIT`
+        const DONTWAIT = bitcast!(c::MSG_DONTWAIT);
+        /// `MSG_EOR`
+        const EOR = bitcast!(c::MSG_EOR);
+        /// `MSG_MORE`
+        const MORE = bitcast!(c::MSG_MORE);
+        /// `MSG_NOSIGNAL`
+        const NOSIGNAL = bitcast!(c::MSG_NOSIGNAL);
+        /// `MSG_OOB`
+        const OOB = bitcast!(c::MSG_OOB);
+
+        /// <https://docs.rs/bitflags/*/bitflags/#externally-defined-flags>
+        const _ = !0;
+    }
+}
+
+bitflags! {
+    /// `MSG_*` flags for use with [`recv`], [`recvfrom`], and related
+    /// functions.
+    ///
+    /// [`recv`]: crate::net::recv
+    /// [`recvfrom`]: crate::net::recvfrom
+    #[repr(transparent)]
+    #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+    pub struct RecvFlags: u32 {
+        /// `MSG_CMSG_CLOEXEC`
+        const CMSG_CLOEXEC = bitcast!(c::MSG_CMSG_CLOEXEC);
+        /// `MSG_DONTWAIT`
+        const DONTWAIT = bitcast!(c::MSG_DONTWAIT);
+        /// `MSG_ERRQUEUE`
+        const ERRQUEUE = bitcast!(c::MSG_ERRQUEUE);
+        /// `MSG_OOB`
+        const OOB = bitcast!(c::MSG_OOB);
+        /// `MSG_PEEK`
+        const PEEK = bitcast!(c::MSG_PEEK);
+        /// `MSG_TRUNC`
+        const TRUNC = bitcast!(c::MSG_TRUNC);
+        /// `MSG_WAITALL`
+        const WAITALL = bitcast!(c::MSG_WAITALL);
+
+        /// <https://docs.rs/bitflags/*/bitflags/#externally-defined-flags>
+        const _ = !0;
+    }
+}
+
+bitflags! {
+    /// `MSG_*` flags returned from [`recvmsg`], in the `flags` field of
+    /// [`RecvMsg`]
+    ///
+    /// [`recvmsg`]: crate::net::recvmsg
+    /// [`RecvMsg`]: crate::net::RecvMsg
+    #[repr(transparent)]
+    #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+    pub struct ReturnFlags: u32 {
+        /// `MSG_OOB`
+        const OOB = bitcast!(c::MSG_OOB);
+        /// `MSG_EOR`
+        const EOR = bitcast!(c::MSG_EOR);
+        /// `MSG_TRUNC`
+        const TRUNC = bitcast!(c::MSG_TRUNC);
+        /// `MSG_CTRUNC`
+        const CTRUNC = bitcast!(c::MSG_CTRUNC);
+
+        /// <https://docs.rs/bitflags/*/bitflags/#externally-defined-flags>
+        const _ = !0;
+    }
+}

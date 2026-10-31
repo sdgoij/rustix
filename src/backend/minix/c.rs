@@ -9,6 +9,7 @@
 #![allow(dead_code)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
+#![allow(non_upper_case_globals)]
 
 pub(crate) use core::ffi::{c_char, c_int, c_long, c_uint, c_ulong, c_ushort, c_void};
 
@@ -172,6 +173,257 @@ pub(crate) const TFD_CLOEXEC: c_int = O_CLOEXEC;
 pub(crate) const TFD_NONBLOCK: c_int = O_NONBLOCK;
 pub(crate) const TFD_TIMER_ABSTIME: c_int = 1;
 pub(crate) const TFD_TIMER_CANCEL_ON_SET: c_int = 2;
+
+// ---- sys/socket.h ----
+
+pub(crate) type socklen_t = u32;
+pub(crate) type sa_family_t = u16;
+
+pub(crate) const AF_UNSPEC: c_int = 0;
+pub(crate) const AF_UNIX: c_int = 1;
+pub(crate) const AF_LOCAL: c_int = AF_UNIX;
+pub(crate) const AF_INET: c_int = 2;
+pub(crate) const AF_INET6: c_int = 10;
+
+pub(crate) const SOCK_STREAM: c_int = 1;
+pub(crate) const SOCK_DGRAM: c_int = 2;
+pub(crate) const SOCK_RAW: c_int = 3;
+pub(crate) const SOCK_RDM: c_int = 4;
+pub(crate) const SOCK_SEQPACKET: c_int = 5;
+/// `SOCK_CLOEXEC`/`SOCK_NONBLOCK` are ORed into the type, as on Linux.
+pub(crate) const SOCK_CLOEXEC: c_int = 0x80000;
+pub(crate) const SOCK_NONBLOCK: c_int = 0x800;
+
+pub(crate) const SHUT_RD: c_int = 0;
+pub(crate) const SHUT_WR: c_int = 1;
+pub(crate) const SHUT_RDWR: c_int = 2;
+
+pub(crate) const IPPROTO_IP: c_int = 0;
+pub(crate) const IPPROTO_ICMP: c_int = 1;
+pub(crate) const IPPROTO_TCP: c_int = 6;
+pub(crate) const IPPROTO_UDP: c_int = 17;
+pub(crate) const IPPROTO_RAW: c_int = 255;
+
+/// MINIX's `SOL_SOCKET` is `0xffff` (`sys/sys/socket.h`), not Linux's 1.
+pub(crate) const SOL_SOCKET: c_int = 0xffff;
+pub(crate) const SO_REUSEADDR: c_int = 2;
+pub(crate) const SO_TYPE: c_int = 3;
+pub(crate) const SO_ERROR: c_int = 4;
+pub(crate) const SO_BROADCAST: c_int = 6;
+pub(crate) const SO_SNDBUF: c_int = 7;
+pub(crate) const SO_RCVBUF: c_int = 8;
+pub(crate) const SO_KEEPALIVE: c_int = 9;
+pub(crate) const SO_OOBINLINE: c_int = 10;
+pub(crate) const SO_LINGER: c_int = 13;
+pub(crate) const SO_REUSEPORT: c_int = 15;
+pub(crate) const SO_PEERCRED: c_int = 17;
+pub(crate) const SO_RCVTIMEO: c_int = 20;
+pub(crate) const SO_SNDTIMEO: c_int = 21;
+pub(crate) const SO_ACCEPTCONN: c_int = 30;
+pub(crate) const SO_DOMAIN: c_int = 39;
+
+pub(crate) const SCM_RIGHTS: c_int = 0x01;
+pub(crate) const SCM_CREDS: c_int = 0x04;
+
+pub(crate) const MSG_OOB: c_int = 0x0001;
+pub(crate) const MSG_PEEK: c_int = 0x0002;
+pub(crate) const MSG_DONTROUTE: c_int = 0x0004;
+pub(crate) const MSG_EOR: c_int = 0x0008;
+pub(crate) const MSG_TRUNC: c_int = 0x0010;
+pub(crate) const MSG_CTRUNC: c_int = 0x0020;
+pub(crate) const MSG_WAITALL: c_int = 0x0040;
+pub(crate) const MSG_DONTWAIT: c_int = 0x0080;
+pub(crate) const MSG_CONFIRM: c_int = 0x0800;
+pub(crate) const MSG_ERRQUEUE: c_int = 0x2000;
+pub(crate) const MSG_NOSIGNAL: c_int = 0x4000;
+pub(crate) const MSG_MORE: c_int = 0x8000;
+pub(crate) const MSG_CMSG_CLOEXEC: c_int = 0x4000_0000;
+
+// Address families the port does not open. The shared layer names every one
+// its `AddressFamily` constants expose, so each needs a value; `socket`
+// refuses all but `AF_UNIX` and `AF_INET` with `EPROTONOSUPPORT`.
+pub(crate) const AF_AX25: c_int = 3;
+pub(crate) const AF_IPX: c_int = 4;
+pub(crate) const AF_APPLETALK: c_int = 5;
+pub(crate) const AF_NETROM: c_int = 6;
+pub(crate) const AF_BRIDGE: c_int = 7;
+pub(crate) const AF_ATMPVC: c_int = 8;
+pub(crate) const AF_X25: c_int = 9;
+pub(crate) const AF_ROSE: c_int = 11;
+pub(crate) const AF_DECnet: c_int = 12;
+pub(crate) const AF_NETBEUI: c_int = 13;
+pub(crate) const AF_SECURITY: c_int = 14;
+pub(crate) const AF_KEY: c_int = 15;
+pub(crate) const AF_NETLINK: c_int = 16;
+pub(crate) const AF_PACKET: c_int = 17;
+pub(crate) const AF_ASH: c_int = 18;
+pub(crate) const AF_ECONET: c_int = 19;
+pub(crate) const AF_ATMSVC: c_int = 20;
+pub(crate) const AF_RDS: c_int = 21;
+pub(crate) const AF_SNA: c_int = 22;
+pub(crate) const AF_IRDA: c_int = 23;
+pub(crate) const AF_PPPOX: c_int = 24;
+pub(crate) const AF_WANPIPE: c_int = 25;
+pub(crate) const AF_LLC: c_int = 26;
+pub(crate) const AF_CAN: c_int = 29;
+pub(crate) const AF_TIPC: c_int = 30;
+pub(crate) const AF_BLUETOOTH: c_int = 31;
+pub(crate) const AF_IUCV: c_int = 32;
+pub(crate) const AF_RXRPC: c_int = 33;
+pub(crate) const AF_ISDN: c_int = 34;
+pub(crate) const AF_PHONET: c_int = 35;
+pub(crate) const AF_IEEE802154: c_int = 36;
+
+// The same for the `IPPROTO_*` constants: the port serves TCP, UDP and ICMP
+// only, and `socket` refuses the rest.
+pub(crate) const IPPROTO_IGMP: c_int = 2;
+pub(crate) const IPPROTO_IPIP: c_int = 4;
+pub(crate) const IPPROTO_EGP: c_int = 8;
+pub(crate) const IPPROTO_PUP: c_int = 12;
+pub(crate) const IPPROTO_IDP: c_int = 22;
+pub(crate) const IPPROTO_TP: c_int = 29;
+pub(crate) const IPPROTO_DCCP: c_int = 33;
+pub(crate) const IPPROTO_IPV6: c_int = 41;
+pub(crate) const IPPROTO_ROUTING: c_int = 43;
+pub(crate) const IPPROTO_FRAGMENT: c_int = 44;
+pub(crate) const IPPROTO_RSVP: c_int = 46;
+pub(crate) const IPPROTO_GRE: c_int = 47;
+pub(crate) const IPPROTO_ESP: c_int = 50;
+pub(crate) const IPPROTO_AH: c_int = 51;
+pub(crate) const IPPROTO_ICMPV6: c_int = 58;
+pub(crate) const IPPROTO_MTP: c_int = 92;
+pub(crate) const IPPROTO_BEETPH: c_int = 94;
+pub(crate) const IPPROTO_ENCAP: c_int = 98;
+pub(crate) const IPPROTO_PIM: c_int = 103;
+pub(crate) const IPPROTO_COMP: c_int = 108;
+pub(crate) const IPPROTO_SCTP: c_int = 132;
+pub(crate) const IPPROTO_MH: c_int = 135;
+pub(crate) const IPPROTO_UDPLITE: c_int = 136;
+pub(crate) const IPPROTO_MPLS: c_int = 137;
+pub(crate) const IPPROTO_MPTCP: c_int = 262;
+
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub(crate) struct sockaddr {
+    pub sa_family: sa_family_t,
+    pub sa_data: [c_char; 14],
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct in_addr {
+    /// The four octets in network order.
+    pub s_addr: u32,
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct sockaddr_in {
+    pub sin_family: sa_family_t,
+    /// Network order.
+    pub sin_port: u16,
+    pub sin_addr: in_addr,
+    pub sin_zero: [u8; 8],
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct in6_addr {
+    pub s6_addr: [u8; 16],
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct sockaddr_in6 {
+    pub sin6_family: sa_family_t,
+    /// Network order.
+    pub sin6_port: u16,
+    pub sin6_flowinfo: u32,
+    pub sin6_addr: in6_addr,
+    pub sin6_scope_id: u32,
+}
+
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub(crate) struct sockaddr_un {
+    pub sun_family: sa_family_t,
+    pub sun_path: [c_char; 108],
+}
+
+/// `struct sockaddr_storage`: large and aligned enough for any address above.
+#[repr(C, align(8))]
+#[derive(Clone, Copy)]
+pub(crate) struct sockaddr_storage {
+    pub ss_family: sa_family_t,
+    pub __data: [u8; 126],
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct iovec {
+    pub iov_base: *mut c_void,
+    pub iov_len: size_t,
+}
+
+/// `struct cmsghdr`: a 32-bit `socklen_t` and an alignment of 4, so the
+/// header is 12 bytes and the data starts at 12 (`tools/c-include/sys/socket.h`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct cmsghdr {
+    pub cmsg_len: socklen_t,
+    pub cmsg_level: c_int,
+    pub cmsg_type: c_int,
+}
+
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub(crate) struct msghdr {
+    pub msg_name: *mut c_void,
+    pub msg_namelen: socklen_t,
+    pub msg_iov: *mut iovec,
+    pub msg_iovlen: c_int,
+    pub msg_control: *mut c_void,
+    pub msg_controllen: socklen_t,
+    pub msg_flags: c_int,
+}
+
+pub(crate) const fn CMSG_ALIGN(len: usize) -> usize {
+    (len + 3) & !3
+}
+
+pub(crate) const unsafe fn CMSG_DATA(cmsg: *const cmsghdr) -> *mut u8 {
+    (cmsg as *const u8).wrapping_add(CMSG_ALIGN(core::mem::size_of::<cmsghdr>())) as *mut u8
+}
+
+pub(crate) const unsafe fn CMSG_SPACE(len: u32) -> u32 {
+    (CMSG_ALIGN(core::mem::size_of::<cmsghdr>()) + CMSG_ALIGN(len as usize)) as u32
+}
+
+pub(crate) const unsafe fn CMSG_LEN(len: u32) -> u32 {
+    (CMSG_ALIGN(core::mem::size_of::<cmsghdr>()) + len as usize) as u32
+}
+
+pub(crate) unsafe fn CMSG_FIRSTHDR(mhdr: *const msghdr) -> *mut cmsghdr {
+    unsafe {
+        if ((*mhdr).msg_controllen as usize) < core::mem::size_of::<cmsghdr>() {
+            core::ptr::null_mut()
+        } else {
+            (*mhdr).msg_control as *mut cmsghdr
+        }
+    }
+}
+
+pub(crate) unsafe fn CMSG_NXTHDR(mhdr: *const msghdr, cmsg: *const cmsghdr) -> *mut cmsghdr {
+    unsafe {
+        let next = (cmsg as *const u8).wrapping_add(CMSG_ALIGN((*cmsg).cmsg_len as usize));
+        let end = ((*mhdr).msg_control as *const u8).wrapping_add((*mhdr).msg_controllen as usize);
+        if next.wrapping_add(CMSG_ALIGN(core::mem::size_of::<cmsghdr>())) > end {
+            core::ptr::null_mut()
+        } else {
+            next as *mut cmsghdr
+        }
+    }
+}
 
 // Exit statuses, from tools/c-include/stdlib.h.
 pub(crate) const EXIT_SUCCESS: c_int = 0;
