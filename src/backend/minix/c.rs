@@ -51,6 +51,27 @@ pub(crate) struct timespec {
     pub tv_nsec: c_long,
 }
 
+/// `PIPE_BUF`: the largest write POSIX guarantees is atomic, which is the
+/// figure `tools/c-include/limits.h` publishes.
+pub(crate) const PIPE_BUF: usize = 4096;
+
+/// `struct utsname` from `tools/c-include/sys/utsname.h`.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct utsname {
+    pub sysname: [c_char; 65],
+    pub nodename: [c_char; 65],
+    pub release: [c_char; 65],
+    pub version: [c_char; 65],
+    pub machine: [c_char; 65],
+    pub domainname: [c_char; 65],
+}
+
+/// The three standard descriptors, which the port keeps at these numbers.
+pub(crate) const STDIN_FILENO: c_int = 0;
+pub(crate) const STDOUT_FILENO: c_int = 1;
+pub(crate) const STDERR_FILENO: c_int = 2;
+
 // `open` flags (tools/c-include/fcntl.h).
 pub(crate) const O_RDONLY: c_int = 0o00;
 pub(crate) const O_WRONLY: c_int = 0o01;
