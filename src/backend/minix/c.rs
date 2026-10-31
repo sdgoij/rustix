@@ -43,6 +43,14 @@ pub(crate) type stat64 = minix_std::fs::Stat;
 pub(crate) type statfs = minix_std::fs::Statvfs;
 pub(crate) type statfs64 = minix_std::fs::Statvfs;
 
+/// The timespec layout `src/timespec.rs` names.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct timespec {
+    pub tv_sec: time_t,
+    pub tv_nsec: c_long,
+}
+
 // `open` flags (tools/c-include/fcntl.h).
 pub(crate) const O_RDONLY: c_int = 0o00;
 pub(crate) const O_WRONLY: c_int = 0o01;

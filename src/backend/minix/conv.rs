@@ -58,3 +58,19 @@ pub(super) fn cvt_count(count: i64) -> io::Result<usize> {
 pub(super) unsafe fn owned_fd_from_raw(raw: LibcFd) -> OwnedFd {
     unsafe { OwnedFd::from_raw_fd(raw as RawFd) }
 }
+
+/// The path a `*at` call may use, or `ENOSYS` when it may not.
+///
+/// The VFS has only path-based calls, so `AT_FDCWD` and an absolute path need
+/// no translation. A real directory descriptor would need the path in it,
+/// which the runtime does not expose, so that case reports `ENOSYS` rather
+/// than resolving the name against the wrong directory.
+#[inline]
+pub(super) fn at_path<'a>(dirfd: BorrowedFd<'_>, path: &'a CStr) -> io::Result<&'a [u8]> {
+    let bytes = path.to_bytes();
+    if dirfd.as_raw_fd() == c::AT_FDCWD || bytes.first() == Some(&b'/') {
+        Ok(bytes)
+    } else {
+        Err(io::Errno::NOSYS)
+    }
+}
