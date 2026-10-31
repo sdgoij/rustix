@@ -98,7 +98,13 @@ fn main() {
     // For now Android uses the libc backend; in theory it could use the
     // linux_raw backend, but to do that we'll need to figure out how to
     // install the toolchain for it.
-    let libc = feature_use_libc
+    // The minix backend calls the port's syscall crate directly, so the libc
+    // backend must not be selected for it; the `minix` feature is the switch.
+    let feature_minix = var("CARGO_FEATURE_MINIX").is_ok();
+    let minix_backend = feature_minix && os == "minix";
+
+    let libc = !minix_backend
+        && (feature_use_libc
         || cfg_use_libc
         || os != "linux"
         || !inline_asm_name_present
@@ -108,8 +114,10 @@ fn main() {
             || arch == "powerpc64"
             || arch == "s390x"
             || arch.starts_with("mips"))
-            && !rustix_use_experimental_asm);
-    if libc {
+            && !rustix_use_experimental_asm));
+    if minix_backend {
+        // Nothing to select: `lib.rs` picks the backend from the feature.
+    } else if libc {
         if (os == "linux" || os == "android") && !cfg_no_linux_raw {
             use_feature("linux_raw_dep");
         }

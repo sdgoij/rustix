@@ -193,6 +193,7 @@ mod types;
 mod weak;
 
 // Pick the backend implementation to use.
+#[cfg_attr(all(feature = "minix", target_os = "minix"), path = "backend/minix/mod.rs")]
 #[cfg_attr(libc, path = "backend/libc/mod.rs")]
 #[cfg_attr(linux_raw, path = "backend/linux_raw/mod.rs")]
 mod backend;

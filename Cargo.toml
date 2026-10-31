@@ -46,9 +46,13 @@ libc_errno = { package = "errno", version = "0.3.10", default-features = false }
 libc = { version = "0.2.182", default-features = false }
 
 # The errno crate's target dispatch has no minix arm, so rustix reads and
-# writes errno through its own `Errno` there; see backend/libc/io/errno.rs.
+# writes errno through its own `Errno` there.
+#
+# The `minix` feature selects the backend that calls the port's syscall crate
+# instead of a C library, so that crate is a dependency of the target.
 [target.'cfg(target_os = "minix")'.dependencies]
 libc = { version = "0.2.182", default-features = false }
+minix-std = { path = "../crates/minix-std" }
 
 # Additional dependencies for Linux and Android with the libc backend:
 #
@@ -123,6 +127,10 @@ std = ["bitflags/std", "alloc", "libc?/std", "libc_errno?/std"]
 
 # Enable this to request the libc backend.
 use-libc = ["libc_errno", "libc"]
+
+# Enable this to request the backend that calls the port's syscall crate
+# directly instead of going through a C library. Only meaningful on minix.
+minix = []
 
 # Enable `rustix::event::*`.
 event = []
@@ -278,3 +286,6 @@ check-cfg = [
     'cfg(target_arch, values("xtensa"))',
     'cfg(target_os, values("cygwin", "minix"))',
 ]
+
+[patch.crates-io]
+libc = { path = "../libc" }
