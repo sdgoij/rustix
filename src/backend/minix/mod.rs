@@ -45,6 +45,12 @@ pub(crate) mod event;
 #[cfg(feature = "net")]
 pub(crate) mod net;
 
+#[cfg(feature = "mm")]
+pub(crate) mod mm;
+
+#[cfg(feature = "shm")]
+pub(crate) mod shm;
+
 #[cfg(feature = "time")]
 pub(crate) mod time;
 

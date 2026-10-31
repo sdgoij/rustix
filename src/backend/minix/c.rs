@@ -174,6 +174,27 @@ pub(crate) const TFD_NONBLOCK: c_int = O_NONBLOCK;
 pub(crate) const TFD_TIMER_ABSTIME: c_int = 1;
 pub(crate) const TFD_TIMER_CANCEL_ON_SET: c_int = 2;
 
+// ---- sys/mman.h ----
+
+pub(crate) const PROT_READ: c_int = 0x01;
+pub(crate) const PROT_WRITE: c_int = 0x02;
+pub(crate) const PROT_EXEC: c_int = 0x04;
+
+pub(crate) const MAP_SHARED: c_int = 0x01;
+pub(crate) const MAP_PRIVATE: c_int = 0x02;
+pub(crate) const MAP_FIXED: c_int = 0x10;
+pub(crate) const MAP_ANONYMOUS: c_int = 0x20;
+
+pub(crate) const MS_ASYNC: c_int = 1;
+pub(crate) const MS_INVALIDATE: c_int = 2;
+pub(crate) const MS_SYNC: c_int = 4;
+
+pub(crate) const POSIX_MADV_NORMAL: c_int = 0;
+pub(crate) const POSIX_MADV_RANDOM: c_int = 1;
+pub(crate) const POSIX_MADV_SEQUENTIAL: c_int = 2;
+pub(crate) const POSIX_MADV_WILLNEED: c_int = 3;
+pub(crate) const POSIX_MADV_DONTNEED: c_int = 4;
+
 // ---- sys/socket.h ----
 
 pub(crate) type socklen_t = u32;
