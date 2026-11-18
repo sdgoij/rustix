@@ -916,10 +916,30 @@ pub(crate) fn utimensat(
     // is not y2038 safe and there's nothing practical we can do.
     #[cfg(not(any(apple, fix_y2038)))]
     {
-        // The VFS has a timestamp call, but the runtime has no wrapper for it
-        // yet, and nothing in the port's tree sets a timestamp through rustix.
-        let _ = (dirfd, path, times, flags);
-        Err(io::Errno::NOSYS)
+        // The port's `VFS_UTIMENS` takes a path (or, with no path, an open
+        // descriptor) and resolves it from the caller's cwd, so `AT_FDCWD` is
+        // the only dirfd it can serve; a real one would need a lookup relative
+        // to an open directory, which VFS does not offer. `touch` is the
+        // caller in the tree, and it passes `CWD`.
+        if borrowed_fd(dirfd) != c::AT_FDCWD {
+            return Err(io::Errno::OPNOTSUPP);
+        }
+        let flags = if flags.contains(AtFlags::SYMLINK_NOFOLLOW) {
+            minix_std::fs::AT_SYMLINK_NOFOLLOW
+        } else {
+            0
+        };
+        unsafe {
+            minix_std::fs::utime_flags(
+                path.to_bytes(),
+                times.last_access.tv_sec,
+                times.last_modification.tv_sec,
+                times.last_access.tv_nsec,
+                times.last_modification.tv_nsec,
+                flags,
+            )
+        }
+        .map_err(errno)
     }
 
     // Apple version: `utimensat` was introduced in macOS 10.13.
@@ -1620,10 +1640,16 @@ pub(crate) fn futimens(fd: BorrowedFd<'_>, times: &Timestamps) -> io::Result<()>
     // is not y2038 safe and there's nothing practical we can do.
     #[cfg(not(any(apple, fix_y2038)))]
     {
-        // The VFS has a timestamp call, but the runtime has no wrapper for it
-        // yet, and nothing in the port's tree sets a timestamp through rustix.
-        let _ = (fd, times);
-        Err(io::Errno::NOSYS)
+        unsafe {
+            minix_std::fs::futimens(
+                borrowed_fd(fd),
+                times.last_access.tv_sec,
+                times.last_modification.tv_sec,
+                times.last_access.tv_nsec,
+                times.last_modification.tv_nsec,
+            )
+        }
+        .map_err(errno)
     }
 
     // Apple version: `futimens` was introduced in macOS 10.13.
