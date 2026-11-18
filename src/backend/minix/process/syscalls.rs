@@ -2,9 +2,9 @@
 //!
 //! The calls PM answers are the ones that exist: the working directory, the
 //! process and group identifiers, priority, `umask`, the kill family, `wait`
-//! and `waitpid`. There is no `setpgid`, `setsid`, `nice`, `getppid`,
-//! `getcwd`, `chroot` or rlimit call, so those report `NOSYS` (or, where the
-//! public signature cannot fail, the "no limit" answer).
+//! and `waitpid`, and `chroot` (VFS `do_chroot`). There is no `setpgid`,
+//! `setsid`, `nice`, `getppid` or rlimit call, so those report `NOSYS` (or,
+//! where the public signature cannot fail, the "no limit" answer).
 
 use crate::backend::c;
 use crate::backend::conv::{borrowed_fd, errno};
@@ -24,9 +24,8 @@ pub(crate) fn fchdir(dirfd: BorrowedFd<'_>) -> io::Result<()> {
     minix_std::fs::fchdir(borrowed_fd(dirfd)).map_err(errno)
 }
 
-pub(crate) fn chroot(_path: &CStr) -> io::Result<()> {
-    // PM has no root-changing call.
-    Err(io::Errno::NOSYS)
+pub(crate) fn chroot(path: &CStr) -> io::Result<()> {
+    minix_std::fs::chroot(path.to_bytes()).map_err(errno)
 }
 
 pub(crate) fn getcwd(buf: &mut [MaybeUninit<u8>]) -> io::Result<()> {
