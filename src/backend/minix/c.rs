@@ -578,23 +578,27 @@ impl siginfo_t {
     }
 }
 
-// `open` flags (tools/c-include/fcntl.h).
+// `open` flags. These are the values the port's VFS implements and `tools/c-include/fcntl.h`
+// publishes; `minix_std::fs::open` decides between `VFS_OPEN` and `VFS_CREAT` by testing
+// `O_CREAT`, so a value that disagrees here makes a create look like an open of a missing
+// file (`ENOENT`). MINIX 3.3.0's own header numbers them differently; the port's ABI wins.
 pub(crate) const O_RDONLY: c_int = 0o00;
 pub(crate) const O_WRONLY: c_int = 0o01;
 pub(crate) const O_RDWR: c_int = 0o02;
 pub(crate) const O_ACCMODE: c_int = 0o03;
-pub(crate) const O_CREAT: c_int = 0o100;
-pub(crate) const O_EXCL: c_int = 0o200;
-pub(crate) const O_NOCTTY: c_int = 0o400;
-pub(crate) const O_TRUNC: c_int = 0o1000;
-pub(crate) const O_APPEND: c_int = 0o2000;
-pub(crate) const O_NONBLOCK: c_int = 0o4000;
+pub(crate) const O_NONBLOCK: c_int = 0o4;
+pub(crate) const O_APPEND: c_int = 0o10;
+pub(crate) const O_SYNC: c_int = 0o200;
+pub(crate) const O_CREAT: c_int = 0o1000;
+pub(crate) const O_TRUNC: c_int = 0o2000;
+pub(crate) const O_EXCL: c_int = 0o4000;
+pub(crate) const O_NOCTTY: c_int = 0o100000;
+pub(crate) const O_CLOEXEC: c_int = 0o20000000;
+// No kernel meaning here; distinct bits so one is never read as another.
 pub(crate) const O_ASYNC: c_int = 0o20000;
 pub(crate) const O_DIRECT: c_int = 0o40000;
-pub(crate) const O_CLOEXEC: c_int = 0o200000;
 pub(crate) const O_DIRECTORY: c_int = 0o400000;
 pub(crate) const O_NOFOLLOW: c_int = 0o1000000;
-pub(crate) const O_SYNC: c_int = 0o2000000;
 pub(crate) const O_DSYNC: c_int = 0o4000000;
 
 // fcntl commands and descriptor flags.
