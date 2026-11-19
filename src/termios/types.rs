@@ -99,7 +99,7 @@ impl Termios {
     #[inline]
     pub fn input_speed(&self) -> u32 {
         // On Linux and BSDs, `input_speed` is the arbitrary integer speed.
-        #[cfg(any(linux_kernel, bsd))]
+        #[cfg(any(linux_kernel, bsd, target_os = "minix"))]
         {
             debug_assert!(u32::try_from(self.input_speed).is_ok());
             self.input_speed as u32
@@ -117,7 +117,8 @@ impl Termios {
             bsd,
             solarish,
             all(libc, target_env = "newlib"),
-            target_os = "aix"
+            target_os = "aix",
+            target_os = "minix"
         )))]
         {
             speed::decode(self.input_speed).unwrap()
@@ -132,7 +133,7 @@ impl Termios {
     #[inline]
     pub fn output_speed(&self) -> u32 {
         // On Linux and BSDs, `output_speed` is the arbitrary integer speed.
-        #[cfg(any(linux_kernel, bsd))]
+        #[cfg(any(linux_kernel, bsd, target_os = "minix"))]
         {
             debug_assert!(u32::try_from(self.output_speed).is_ok());
             self.output_speed as u32
@@ -150,7 +151,8 @@ impl Termios {
             bsd,
             solarish,
             all(libc, target_env = "newlib"),
-            target_os = "aix"
+            target_os = "aix",
+            target_os = "minix"
         )))]
         {
             speed::decode(self.output_speed).unwrap()
@@ -303,6 +305,7 @@ bitflags! {
             target_os = "emscripten",
             target_os = "haiku",
             target_os = "hurd",
+            target_os = "minix",
             target_os = "redox",
         )))]
         const IUTF8 = c::IUTF8;
@@ -326,6 +329,7 @@ bitflags! {
             freebsdlike,
             target_os = "aix",
             target_os = "netbsd",
+            target_os = "minix",
             target_os = "redox",
         )))]
         const OLCUC = c::OLCUC;
@@ -343,31 +347,49 @@ bitflags! {
         const ONLRET = c::ONLRET;
 
         /// `OFILL`
-        #[cfg(not(bsd))]
+        #[cfg(not(any(bsd, target_os = "minix")))]
         const OFILL = c::OFILL;
 
         /// `OFDEL`
-        #[cfg(not(bsd))]
+        #[cfg(not(any(bsd, target_os = "minix")))]
         const OFDEL = c::OFDEL;
 
         /// `NLDLY`
-        #[cfg(not(any(bsd, solarish, target_os = "redox")))]
+        #[cfg(not(any(bsd, solarish, target_os = "minix", target_os = "redox")))]
         const NLDLY = c::NLDLY;
 
         /// `NL0`
-        #[cfg(not(any(bsd, solarish, target_os = "fuchsia", target_os = "redox")))]
+        #[cfg(not(any(
+            bsd,
+            solarish,
+            target_os = "fuchsia",
+            target_os = "minix",
+            target_os = "redox",
+        )))]
         const NL0 = c::NL0;
 
         /// `NL1`
-        #[cfg(not(any(bsd, solarish, target_os = "fuchsia", target_os = "redox")))]
+        #[cfg(not(any(
+            bsd,
+            solarish,
+            target_os = "fuchsia",
+            target_os = "minix",
+            target_os = "redox",
+        )))]
         const NL1 = c::NL1;
 
         /// `CRDLY`
-        #[cfg(not(any(bsd, solarish, target_os = "redox")))]
+        #[cfg(not(any(bsd, solarish, target_os = "minix", target_os = "redox")))]
         const CRDLY = c::CRDLY;
 
         /// `CR0`
-        #[cfg(not(any(bsd, solarish, target_os = "fuchsia", target_os = "redox")))]
+        #[cfg(not(any(
+            bsd,
+            solarish,
+            target_os = "fuchsia",
+            target_os = "minix",
+            target_os = "redox",
+        )))]
         const CR0 = c::CR0;
 
         /// `CR1`
@@ -377,6 +399,7 @@ bitflags! {
             solarish,
             target_os = "emscripten",
             target_os = "fuchsia",
+            target_os = "minix",
             target_os = "redox",
         )))]
         const CR1 = c::CR1;
@@ -388,6 +411,7 @@ bitflags! {
             solarish,
             target_os = "emscripten",
             target_os = "fuchsia",
+            target_os = "minix",
             target_os = "redox",
         )))]
         const CR2 = c::CR2;
@@ -399,6 +423,7 @@ bitflags! {
             solarish,
             target_os = "emscripten",
             target_os = "fuchsia",
+            target_os = "minix",
             target_os = "redox",
         )))]
         const CR3 = c::CR3;
@@ -408,6 +433,7 @@ bitflags! {
             netbsdlike,
             solarish,
             target_os = "dragonfly",
+            target_os = "minix",
             target_os = "redox",
         )))]
         const TABDLY = c::TABDLY;
@@ -418,6 +444,7 @@ bitflags! {
             solarish,
             target_os = "dragonfly",
             target_os = "fuchsia",
+            target_os = "minix",
             target_os = "redox",
         )))]
         const TAB0 = c::TAB0;
@@ -429,6 +456,7 @@ bitflags! {
             solarish,
             target_os = "emscripten",
             target_os = "fuchsia",
+            target_os = "minix",
             target_os = "redox",
         )))]
         const TAB1 = c::TAB1;
@@ -440,6 +468,7 @@ bitflags! {
             solarish,
             target_os = "emscripten",
             target_os = "fuchsia",
+            target_os = "minix",
             target_os = "redox",
         )))]
         const TAB2 = c::TAB2;
@@ -451,6 +480,7 @@ bitflags! {
             solarish,
             target_os = "emscripten",
             target_os = "fuchsia",
+            target_os = "minix",
             target_os = "redox",
         )))]
         const TAB3 = c::TAB3;
@@ -461,16 +491,23 @@ bitflags! {
             solarish,
             target_os = "aix",
             target_os = "haiku",
+            target_os = "minix",
             target_os = "redox",
         )))]
         const XTABS = c::XTABS;
 
         /// `BSDLY`
-        #[cfg(not(any(bsd, solarish, target_os = "redox")))]
+        #[cfg(not(any(bsd, solarish, target_os = "minix", target_os = "redox")))]
         const BSDLY = c::BSDLY;
 
         /// `BS0`
-        #[cfg(not(any(bsd, solarish, target_os = "fuchsia", target_os = "redox")))]
+        #[cfg(not(any(
+            bsd,
+            solarish,
+            target_os = "fuchsia",
+            target_os = "minix",
+            target_os = "redox",
+        )))]
         const BS0 = c::BS0;
 
         /// `BS1`
@@ -480,16 +517,23 @@ bitflags! {
             solarish,
             target_os = "emscripten",
             target_os = "fuchsia",
+            target_os = "minix",
             target_os = "redox",
         )))]
         const BS1 = c::BS1;
 
         /// `FFDLY`
-        #[cfg(not(any(bsd, solarish, target_os = "redox")))]
+        #[cfg(not(any(bsd, solarish, target_os = "minix", target_os = "redox")))]
         const FFDLY = c::FFDLY;
 
         /// `FF0`
-        #[cfg(not(any(bsd, solarish, target_os = "fuchsia", target_os = "redox")))]
+        #[cfg(not(any(
+            bsd,
+            solarish,
+            target_os = "fuchsia",
+            target_os = "minix",
+            target_os = "redox",
+        )))]
         const FF0 = c::FF0;
 
         /// `FF1`
@@ -499,16 +543,23 @@ bitflags! {
             solarish,
             target_os = "emscripten",
             target_os = "fuchsia",
+            target_os = "minix",
             target_os = "redox",
         )))]
         const FF1 = c::FF1;
 
         /// `VTDLY`
-        #[cfg(not(any(bsd, solarish, target_os = "redox")))]
+        #[cfg(not(any(bsd, solarish, target_os = "minix", target_os = "redox")))]
         const VTDLY = c::VTDLY;
 
         /// `VT0`
-        #[cfg(not(any(bsd, solarish, target_os = "fuchsia", target_os = "redox")))]
+        #[cfg(not(any(
+            bsd,
+            solarish,
+            target_os = "fuchsia",
+            target_os = "minix",
+            target_os = "redox",
+        )))]
         const VT0 = c::VT0;
 
         /// `VT1`
@@ -518,6 +569,7 @@ bitflags! {
             solarish,
             target_os = "emscripten",
             target_os = "fuchsia",
+            target_os = "minix",
             target_os = "redox",
         )))]
         const VT1 = c::VT1;
@@ -583,6 +635,7 @@ bitflags! {
             target_os = "emscripten",
             target_os = "haiku",
             target_os = "hurd",
+            target_os = "minix",
             target_os = "nto",
             target_os = "redox",
         )))]
@@ -674,7 +727,7 @@ bitflags! {
 /// because they help identify speeds which are likely to be supported, on
 /// platforms and devices which don't support arbitrary speeds.
 pub mod speed {
-    #[cfg(not(bsd))]
+    #[cfg(not(any(bsd, target_os = "minix")))]
     use crate::backend::c;
 
     /// `B0`
@@ -829,7 +882,8 @@ pub mod speed {
     /// to `TCGETS2`/`TCSETS2` to support them.
     #[cfg(not(any(
         bsd,
-        all(linux_kernel, any(target_arch = "powerpc", target_arch = "powerpc64"))
+        all(linux_kernel, any(target_arch = "powerpc", target_arch = "powerpc64")),
+        target_os = "minix"
     )))]
     pub(crate) const fn decode(encoded_speed: c::speed_t) -> Option<u32> {
         match encoded_speed {
@@ -967,7 +1021,7 @@ pub mod speed {
 
     /// Translate from an arbitrary `u32` arbitrary integer speed value to a
     /// `c::speed_t` code.
-    #[cfg(not(bsd))]
+    #[cfg(not(any(bsd, target_os = "minix")))]
     pub(crate) const fn encode(speed: u32) -> Option<c::speed_t> {
         match speed {
             0 => Some(c::B0),
@@ -1109,6 +1163,26 @@ pub mod speed {
 #[derive(Clone)]
 pub struct SpecialCodes(pub(crate) [c::cc_t; c::NCCS as usize]);
 
+impl SpecialCodes {
+    /// The raw `c_cc` bytes, including the indices the platform does not name.
+    #[inline]
+    pub fn as_bytes(&self) -> &[u8] {
+        &self.0
+    }
+
+    /// Build a `SpecialCodes` from raw `c_cc` bytes.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `bytes` is not this platform's `NCCS` long.
+    #[inline]
+    pub fn from_bytes(bytes: &[u8]) -> Self {
+        let mut cc = [0; c::NCCS as usize];
+        cc.copy_from_slice(bytes);
+        Self(cc)
+    }
+}
+
 impl core::ops::Index<SpecialCodeIndex> for SpecialCodes {
     type Output = u8;
 
@@ -1198,6 +1272,7 @@ impl SpecialCodeIndex {
         target_os = "aix",
         target_os = "haiku",
         target_os = "hurd",
+        target_os = "minix",
         target_os = "nto",
     )))]
     pub const VSWTC: Self = Self(c::VSWTC as usize);
@@ -1243,12 +1318,13 @@ impl SpecialCodeIndex {
         solarish,
         target_os = "aix",
         target_os = "hurd",
+        target_os = "minix",
         target_os = "nto"
     ))]
     pub const VDSUSP: Self = Self(c::VDSUSP as usize);
 
     /// `VSTATUS`
-    #[cfg(any(bsd, target_os = "hurd", target_os = "illumos"))]
+    #[cfg(any(bsd, target_os = "hurd", target_os = "illumos", target_os = "minix"))]
     pub const VSTATUS: Self = Self(c::VSTATUS as usize);
 
     /// `VERASE2`
@@ -1308,6 +1384,7 @@ impl core::fmt::Debug for SpecialCodeIndex {
                 target_os = "aix",
                 target_os = "haiku",
                 target_os = "hurd",
+                target_os = "minix",
                 target_os = "nto",
             )))]
             Self::VSWTC => write!(f, "VSWTC"),
@@ -1337,10 +1414,11 @@ impl core::fmt::Debug for SpecialCodeIndex {
                 solarish,
                 target_os = "aix",
                 target_os = "hurd",
+                target_os = "minix",
                 target_os = "nto"
             ))]
             Self::VDSUSP => write!(f, "VDSUSP"),
-            #[cfg(any(bsd, target_os = "hurd", target_os = "illumos"))]
+            #[cfg(any(bsd, target_os = "hurd", target_os = "illumos", target_os = "minix"))]
             Self::VSTATUS => write!(f, "VSTATUS"),
             #[cfg(any(freebsdlike, target_os = "illumos"))]
             Self::VERASE2 => write!(f, "VERASE2"),

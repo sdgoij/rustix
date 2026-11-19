@@ -896,3 +896,126 @@ pub(crate) const EUCLEAN: c_int = 117;
 pub(crate) const EUNATCH: c_int = 49;
 pub(crate) const EUSERS: c_int = 87;
 pub(crate) const EXFULL: c_int = 54;
+
+/// `tcflag_t`: the port's header makes it `unsigned int`.
+pub(crate) type tcflag_t = c_uint;
+/// `speed_t`: likewise. The tty server keeps a rate here, not an encoded bit field.
+pub(crate) type speed_t = c_uint;
+/// `cc_t`: one control character.
+pub(crate) type cc_t = u8;
+
+/// `NCCS`: the length of `c_cc`.
+pub(crate) const NCCS: usize = 20;
+
+// `c_iflag`
+pub(crate) const IGNBRK: tcflag_t = 0x0000_0001;
+pub(crate) const BRKINT: tcflag_t = 0x0000_0002;
+pub(crate) const IGNPAR: tcflag_t = 0x0000_0004;
+pub(crate) const PARMRK: tcflag_t = 0x0000_0008;
+pub(crate) const INPCK: tcflag_t = 0x0000_0010;
+pub(crate) const ISTRIP: tcflag_t = 0x0000_0020;
+pub(crate) const INLCR: tcflag_t = 0x0000_0040;
+pub(crate) const IGNCR: tcflag_t = 0x0000_0080;
+pub(crate) const ICRNL: tcflag_t = 0x0000_0100;
+pub(crate) const IXON: tcflag_t = 0x0000_0200;
+pub(crate) const IXOFF: tcflag_t = 0x0000_0400;
+pub(crate) const IXANY: tcflag_t = 0x0000_0800;
+pub(crate) const IMAXBEL: tcflag_t = 0x0000_2000;
+
+// `c_oflag`. The port has no `TABDLY` group: `OXTABS` and `ONOEOT` take its
+// place, and neither has a `rustix` name.
+pub(crate) const OPOST: tcflag_t = 0x0000_0001;
+pub(crate) const ONLCR: tcflag_t = 0x0000_0002;
+pub(crate) const OCRNL: tcflag_t = 0x0000_0010;
+pub(crate) const ONOCR: tcflag_t = 0x0000_0020;
+pub(crate) const ONLRET: tcflag_t = 0x0000_0040;
+
+// `c_cflag`
+pub(crate) const CSIZE: tcflag_t = 0x0000_0300;
+pub(crate) const CS5: tcflag_t = 0x0000_0000;
+pub(crate) const CS6: tcflag_t = 0x0000_0100;
+pub(crate) const CS7: tcflag_t = 0x0000_0200;
+pub(crate) const CS8: tcflag_t = 0x0000_0300;
+pub(crate) const CSTOPB: tcflag_t = 0x0000_0400;
+pub(crate) const CREAD: tcflag_t = 0x0000_0800;
+pub(crate) const PARENB: tcflag_t = 0x0000_1000;
+pub(crate) const PARODD: tcflag_t = 0x0000_2000;
+pub(crate) const HUPCL: tcflag_t = 0x0000_4000;
+pub(crate) const CLOCAL: tcflag_t = 0x0000_8000;
+pub(crate) const CRTSCTS: tcflag_t = 0x0001_0000;
+
+// `c_lflag`
+pub(crate) const ECHOKE: tcflag_t = 0x0000_0001;
+pub(crate) const ECHOE: tcflag_t = 0x0000_0002;
+pub(crate) const ECHOK: tcflag_t = 0x0000_0004;
+pub(crate) const ECHO: tcflag_t = 0x0000_0008;
+pub(crate) const ECHONL: tcflag_t = 0x0000_0010;
+pub(crate) const ECHOPRT: tcflag_t = 0x0000_0020;
+pub(crate) const ECHOCTL: tcflag_t = 0x0000_0040;
+pub(crate) const ISIG: tcflag_t = 0x0000_0080;
+pub(crate) const ICANON: tcflag_t = 0x0000_0100;
+pub(crate) const IEXTEN: tcflag_t = 0x0000_0400;
+pub(crate) const EXTPROC: tcflag_t = 0x0000_0800;
+pub(crate) const TOSTOP: tcflag_t = 0x0040_0000;
+pub(crate) const FLUSHO: tcflag_t = 0x0080_0000;
+pub(crate) const PENDIN: tcflag_t = 0x2000_0000;
+pub(crate) const NOFLSH: tcflag_t = 0x8000_0000;
+
+// Control-character subscripts (`c_cc`), in the server's order.
+pub(crate) const VEOF: c_int = 0;
+pub(crate) const VEOL: c_int = 1;
+pub(crate) const VEOL2: c_int = 2;
+pub(crate) const VERASE: c_int = 3;
+pub(crate) const VWERASE: c_int = 4;
+pub(crate) const VKILL: c_int = 5;
+pub(crate) const VREPRINT: c_int = 6;
+pub(crate) const VINTR: c_int = 8;
+pub(crate) const VQUIT: c_int = 9;
+pub(crate) const VSUSP: c_int = 10;
+pub(crate) const VDSUSP: c_int = 11;
+pub(crate) const VSTART: c_int = 12;
+pub(crate) const VSTOP: c_int = 13;
+pub(crate) const VLNEXT: c_int = 14;
+pub(crate) const VDISCARD: c_int = 15;
+pub(crate) const VMIN: c_int = 16;
+pub(crate) const VTIME: c_int = 17;
+pub(crate) const VSTATUS: c_int = 18;
+
+// `tcsetattr` actions.
+pub(crate) const TCSANOW: c_int = 0;
+pub(crate) const TCSADRAIN: c_int = 1;
+pub(crate) const TCSAFLUSH: c_int = 2;
+
+// `tcflush` queues.
+pub(crate) const TCIFLUSH: c_int = 1;
+pub(crate) const TCOFLUSH: c_int = 2;
+pub(crate) const TCIOFLUSH: c_int = 3;
+
+// `tcflow` actions.
+pub(crate) const TCOOFF: c_int = 0;
+pub(crate) const TCOON: c_int = 1;
+pub(crate) const TCIOFF: c_int = 2;
+pub(crate) const TCION: c_int = 3;
+
+// Baud rates. The header makes these plain values, since `c_ispeed` and
+// `c_ospeed` hold a rate rather than a bit field in `c_cflag`.
+pub(crate) const B0: speed_t = 0;
+pub(crate) const B50: speed_t = 50;
+pub(crate) const B75: speed_t = 75;
+pub(crate) const B110: speed_t = 110;
+pub(crate) const B134: speed_t = 134;
+pub(crate) const B150: speed_t = 150;
+pub(crate) const B200: speed_t = 200;
+pub(crate) const B300: speed_t = 300;
+pub(crate) const B600: speed_t = 600;
+pub(crate) const B1200: speed_t = 1200;
+pub(crate) const B1800: speed_t = 1800;
+pub(crate) const B2400: speed_t = 2400;
+pub(crate) const B4800: speed_t = 4800;
+pub(crate) const B7200: speed_t = 7200;
+pub(crate) const B9600: speed_t = 9600;
+pub(crate) const B19200: speed_t = 19200;
+pub(crate) const B38400: speed_t = 38400;
+pub(crate) const B115200: speed_t = 115_200;
+pub(crate) const EXTA: speed_t = B19200;
+pub(crate) const EXTB: speed_t = B38400;

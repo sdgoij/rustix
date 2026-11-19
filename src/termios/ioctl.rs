@@ -24,6 +24,9 @@ use backend::c;
 #[cfg(not(any(
     windows,
     target_os = "horizon",
+    // The tty server has no exclusive-mode request, and VFS answers an ioctl
+    // it does not route with success, so offering this would lie.
+    target_os = "minix",
     target_os = "redox",
     target_os = "wasi"
 )))]
@@ -52,6 +55,8 @@ pub fn ioctl_tiocexcl<Fd: AsFd>(fd: Fd) -> io::Result<()> {
 #[cfg(not(any(
     windows,
     target_os = "horizon",
+    // As above: there is no exclusive mode to turn off either.
+    target_os = "minix",
     target_os = "redox",
     target_os = "wasi"
 )))]
